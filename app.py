@@ -23,7 +23,8 @@ st.markdown("""
 
 # --- BASE DE DATOS ---
 def get_connection():
-    return sqlite3.connect('tickets.db', check_same_thread=False)
+    # HEMOS CAMBIADO EL NOMBRE A 'adifincas_v2.db' PARA SOLUCIONAR EL ERROR
+    return sqlite3.connect('adifincas_v2.db', check_same_thread=False)
 
 def init_db():
     conn = get_connection()
@@ -118,7 +119,10 @@ def agregar_nota(id_ticket, usuario, texto, nuevo_estado=None):
 
 def leer_todos():
     conn = get_connection()
-    df = pd.read_sql_query("SELECT * FROM tickets ORDER BY id DESC", conn)
+    try:
+        df = pd.read_sql_query("SELECT * FROM tickets ORDER BY id DESC", conn)
+    except:
+        df = pd.DataFrame() # Si falla, devuelve vacío
     conn.close()
     return df
 
@@ -137,7 +141,10 @@ if st.session_state['vista_impresion_lista']:
     st.title("Listado de Tickets - Adifincas")
     st.write(f"Fecha de impresión: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
     df = leer_todos()
-    st.table(df[['codigo', 'fecha_creacion', 'cliente', 'motivo', 'prioridad', 'estado', 'asignado_a']])
+    if not df.empty:
+        st.table(df[['codigo', 'fecha_creacion', 'cliente', 'motivo', 'prioridad', 'estado', 'asignado_a']])
+    else:
+        st.info("No hay datos para imprimir.")
     st.warning("Pulsa Ctrl + P para imprimir ahora.")
     if st.button("Salir de impresión"):
         st.session_state['vista_impresion_lista'] = False
@@ -167,11 +174,13 @@ if st.session_state['vista_impresion_ficha']:
     ### 📜 Historial de Gestión
     """)
     # Formatear historial para papel
-    lineas = t['historial'].split('\n')
-    for l in lineas:
-        if "|" in l:
-            parts = l.split("|", 2)
-            st.markdown(f"**[{parts[0].strip()}] {parts[1].strip()}:** {parts[2].strip()}")
+    if t['historial']:
+        lineas = t['historial'].split('\n')
+        for l in lineas:
+            if "|" in l:
+                parts = l.split("|", 2)
+                if len(parts) >= 3:
+                    st.markdown(f"**[{parts[0].strip()}] {parts[1].strip()}:** {parts[2].strip()}")
             
     st.success("Pulsa Ctrl + P para imprimir o guardar como PDF.")
     if st.button("Cerrar Vista Impresión"):
@@ -203,13 +212,16 @@ with tab1:
             
             # --- DETECTOR DE COINCIDENCIAS ---
             if contacto or cliente:
-                duplicados = buscar_coincidencias(contacto if contacto else cliente)
-                if not duplicados.empty:
-                    st.warning(f"⚠️ ¡Atención! He encontrado {len(duplicados)} tickets relacionados:")
-                    st.dataframe(duplicados[['codigo', 'estado', 'motivo']], hide_index=True)
-                else:
-                    if len(str(contacto)) > 4:
-                        st.caption("✅ No hay tickets recientes con este contacto.")
+                try:
+                    duplicados = buscar_coincidencias(contacto if contacto else cliente)
+                    if not duplicados.empty:
+                        st.warning(f"⚠️ ¡Atención! He encontrado {len(duplicados)} tickets relacionados:")
+                        st.dataframe(duplicados[['codigo', 'estado', 'motivo']], hide_index=True)
+                    else:
+                        if len(str(contacto)) > 4:
+                            st.caption("✅ No hay tickets recientes con este contacto.")
+                except:
+                    pass # Evitar errores si la tabla aun no tiene datos
         
         with c2:
             motivo = st.text_area("Motivo", height=100)
@@ -229,66 +241,70 @@ with tab1:
 with tab2:
     df = leer_todos()
     
-    # Cabecera con botón de imprimir
-    col_head1, col_head2 = st.columns([5, 1])
-    col_head1.subheader("Listado de Incidencias")
-    if col_head2.button("🖨️ Imprimir Lista"):
-        st.session_state['vista_impresion_lista'] = True
-        st.rerun()
-    
-    # Filtro ver cerrados
-    ver_cerrados = st.checkbox("Ver cerrados", value=False)
-    if not ver_cerrados:
-        df = df[df['estado'] != 'Cerrado']
+    if df.empty:
+        st.info("No hay tickets registrados aún.")
+    else:
+        # Cabecera con botón de imprimir
+        col_head1, col_head2 = st.columns([5, 1])
+        col_head1.subheader("Listado de Incidencias")
+        if col_head2.button("🖨️ Imprimir Lista"):
+            st.session_state['vista_impresion_lista'] = True
+            st.rerun()
         
-    for i, row in df.iterrows():
-        # Icono estado
-        icon = "🔴" if row['prioridad'] == "MUY URGENTE" else "🟢"
-        if row['estado'] == "Cerrado": icon = "⚫"
-        
-        with st.expander(f"{icon} {row['codigo']} | {row['cliente']} | {row['motivo']}"):
-            c_det, c_hist = st.columns([1, 1])
+        # Filtro ver cerrados
+        ver_cerrados = st.checkbox("Ver cerrados", value=False)
+        if not ver_cerrados:
+            df = df[df['estado'] != 'Cerrado']
             
-            with c_det:
-                st.write(f"**Contacto:** {row['contacto']}")
-                st.write(f"**Asignado:** {row['asignado_a']}")
-                if st.button("🖨️ Imprimir Ficha", key=f"print_{row['id']}"):
-                    st.session_state['vista_impresion_ficha'] = row.to_dict()
-                    st.rerun()
+        for i, row in df.iterrows():
+            # Icono estado
+            icon = "🔴" if row['prioridad'] == "MUY URGENTE" else "🟢"
+            if row['estado'] == "Cerrado": icon = "⚫"
+            
+            with st.expander(f"{icon} {row['codigo']} | {row['cliente']} | {row['motivo']}"):
+                c_det, c_hist = st.columns([1, 1])
                 
-                st.divider()
-                # Acciones
-                nota = st.text_area("Nueva nota:", key=f"txt_{row['id']}")
-                col_btn1, col_btn2 = st.columns(2)
-                
-                # Lógica botones
-                if row['estado'] == "Cerrado":
-                    if col_btn1.button("Reabrir", key=f"reopen_{row['id']}"):
-                        agregar_nota(row['id'], usuario, "Reapertura del caso", "En Gestión")
+                with c_det:
+                    st.write(f"**Contacto:** {row['contacto']}")
+                    st.write(f"**Asignado:** {row['asignado_a']}")
+                    if st.button("🖨️ Imprimir Ficha", key=f"print_{row['id']}"):
+                        st.session_state['vista_impresion_ficha'] = row.to_dict()
                         st.rerun()
-                else:
-                    if col_btn1.button("Añadir Nota", key=f"add_{row['id']}"):
-                        if nota:
-                            agregar_nota(row['id'], usuario, nota)
-                            st.success("Añadido")
+                    
+                    st.divider()
+                    # Acciones
+                    nota = st.text_area("Nueva nota:", key=f"txt_{row['id']}")
+                    col_btn1, col_btn2 = st.columns(2)
+                    
+                    # Lógica botones
+                    if row['estado'] == "Cerrado":
+                        if col_btn1.button("Reabrir", key=f"reopen_{row['id']}"):
+                            agregar_nota(row['id'], usuario, "Reapertura del caso", "En Gestión")
                             st.rerun()
-                    if col_btn2.button("Cerrar Ticket", key=f"close_{row['id']}"):
-                        agregar_nota(row['id'], usuario, nota if nota else "Cierre manual", "Cerrado")
-                        st.rerun()
+                    else:
+                        if col_btn1.button("Añadir Nota", key=f"add_{row['id']}"):
+                            if nota:
+                                agregar_nota(row['id'], usuario, nota)
+                                st.success("Añadido")
+                                st.rerun()
+                        if col_btn2.button("Cerrar Ticket", key=f"close_{row['id']}"):
+                            agregar_nota(row['id'], usuario, nota if nota else "Cierre manual", "Cerrado")
+                            st.rerun()
 
-            with c_hist:
-                st.caption("📜 Historial (Más reciente arriba)")
-                hist_text = row['historial']
-                # Renderizado estilo chat
-                container = st.container(height=300)
-                for linea in hist_text.split('\n'):
-                    if "|" in linea:
-                        parts = linea.split("|", 2)
-                        # parts[0]=fecha, parts[1]=user, parts[2]=msg
-                        if len(parts) == 3:
-                            if "SISTEMA" in parts[1]:
-                                container.caption(f"🤖 {parts[2]} ({parts[0]})")
-                            else:
-                                container.markdown(f"**{parts[1].strip()}:** {parts[2].strip()}")
-                                container.caption(f"_{parts[0]}_")
-                            container.write("---")
+                with c_hist:
+                    st.caption("📜 Historial (Más reciente arriba)")
+                    if row['historial']:
+                        hist_text = row['historial']
+                        # Renderizado estilo chat
+                        container = st.container(height=300)
+                        for linea in hist_text.split('\n'):
+                            if "|" in linea:
+                                parts = linea.split("|", 2)
+                                # parts[0]=fecha, parts[1]=user, parts[2]=msg
+                                if len(parts) == 3:
+                                    if "SISTEMA" in parts[1]:
+                                        container.caption(f"🤖 {parts[2]} ({parts[0]})")
+                                    else:
+                                        container.markdown(f"**{parts[1].strip()}:** {parts[2].strip()}")
+                                        container.caption(f"_{parts[0]}_")
+                                    container.write("---")
