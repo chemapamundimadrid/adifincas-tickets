@@ -7,14 +7,27 @@ from datetime import datetime
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Gestión Adifincas", layout="wide", page_icon="🏢")
 
-# --- FUNCIONES DE BASE DE DATOS ---
+# Estilos CSS para impresión limpia
+st.markdown("""
+<style>
+    @media print {
+        /* Ocultar elementos de Streamlit al imprimir */
+        header, footer, .stSidebar, .stButton, button, .stRadio {display: none !important;}
+        .block-container {padding-top: 0rem !important; padding-bottom: 0rem !important;}
+        /* Asegurar que el contenido se ve bien */
+        body {font-size: 12pt;}
+        table {width: 100% !important;}
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# --- BASE DE DATOS ---
 def get_connection():
     return sqlite3.connect('tickets.db', check_same_thread=False)
 
 def init_db():
     conn = get_connection()
     c = conn.cursor()
-    # Tabla de tickets con columna 'codigo' y 'notas_json' (aunque usaremos texto plano con separadores para simplificar)
     c.execute('''
         CREATE TABLE IF NOT EXISTS tickets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,197 +47,248 @@ def init_db():
     conn.close()
 
 def generar_nuevo_codigo():
-    # Genera formato AAAA/MM/00X
     conn = get_connection()
     c = conn.cursor()
-    mes_actual = datetime.now().strftime("%Y/%m") # Ej: 2026/02
+    mes_actual = datetime.now().strftime("%Y/%m") # Formato Año/Mes
     
-    # Buscamos el último código de este mes
+    # Buscamos el último del mes
     c.execute("SELECT codigo FROM tickets WHERE codigo LIKE ? ORDER BY id DESC LIMIT 1", (f"{mes_actual}%",))
     resultado = c.fetchone()
     conn.close()
     
     if resultado:
-        ultimo_num = int(resultado[0].split('/')[-1])
-        nuevo_num = ultimo_num + 1
+        try:
+            ultimo_num = int(resultado[0].split('/')[-1])
+            nuevo_num = ultimo_num + 1
+        except:
+            nuevo_num = 1
     else:
         nuevo_num = 1
         
     return f"{mes_actual}/{nuevo_num:03d}" # Ej: 2026/02/001
 
-def crear_ticket(usuario_activo, cliente, contacto, motivo, prioridad, asignado):
+def buscar_coincidencias(texto):
+    if not texto or len(texto) < 3: return []
+    conn = get_connection()
+    # Busca en cliente O contacto
+    df = pd.read_sql_query(f"SELECT codigo, cliente, motivo, estado, fecha_creacion FROM tickets WHERE cliente LIKE '%{texto}%' OR contacto LIKE '%{texto}%' ORDER BY id DESC LIMIT 5", conn)
+    conn.close()
+    return df
+
+def crear_ticket(usuario, cliente, contacto, motivo, prioridad, asignado):
     conn = get_connection()
     c = conn.cursor()
-    
     codigo = generar_nuevo_codigo()
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M")
     
-    # El historial inicial
-    historial_inicial = f"{fecha} | SISTEMA | Ticket creado por {usuario_activo} (Asignado a: {asignado})\n"
+    historial_inicial = f"{fecha} | SISTEMA | Ticket creado por {usuario} (Asignado a: {asignado})\n"
     
     c.execute('''
         INSERT INTO tickets (codigo, fecha_creacion, creado_por, cliente, contacto, motivo, prioridad, asignado_a, estado, historial)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (codigo, fecha, usuario_activo, cliente, contacto, motivo, prioridad, asignado, "Pendiente", historial_inicial))
-    
+    ''', (codigo, fecha, usuario, cliente, contacto, motivo, prioridad, asignado, "Pendiente", historial_inicial))
     conn.commit()
     conn.close()
     return codigo
 
-def leer_tickets():
+def agregar_nota(id_ticket, usuario, texto, nuevo_estado=None):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("SELECT historial, estado FROM tickets WHERE id=?", (id_ticket,))
+    data = c.fetchone()
+    if not data: return
+    
+    historial_viejo, estado_viejo = data
+    fecha = datetime.now().strftime("%d/%m %H:%M")
+    
+    # NUEVO ORDEN: Lo nuevo ARRIBA
+    bloque_nuevo = f"{fecha} | {usuario} | {texto}\n"
+    
+    if nuevo_estado and nuevo_estado != estado_viejo:
+        bloque_nuevo += f"{fecha} | SISTEMA | 🔄 Cambio estado: {estado_viejo} -> {nuevo_estado}\n"
+        estado_final = nuevo_estado
+    else:
+        estado_final = estado_viejo
+    
+    historial_actualizado = bloque_nuevo + historial_viejo
+    
+    c.execute("UPDATE tickets SET historial=?, estado=? WHERE id=?", (historial_actualizado, estado_final, id_ticket))
+    conn.commit()
+    conn.close()
+
+def leer_todos():
     conn = get_connection()
     df = pd.read_sql_query("SELECT * FROM tickets ORDER BY id DESC", conn)
     conn.close()
     return df
 
-def agregar_nota(id_ticket, usuario, texto_nota, nuevo_estado=None):
-    conn = get_connection()
-    c = conn.cursor()
-    
-    c.execute("SELECT historial, estado FROM tickets WHERE id=?", (id_ticket,))
-    data = c.fetchone()
-    if not data: return
-    
-    historial_actual, estado_actual = data
-    fecha = datetime.now().strftime("%Y-%m-%d %H:%M")
-    
-    # Construir el bloque de texto para la bitácora
-    # Formato: FECHA | USUARIO | MENSAJE
-    nuevo_bloque = f"{fecha} | {usuario} | {texto_nota}\n"
-    
-    # Si hay cambio de estado, lo registramos también
-    if nuevo_estado and nuevo_estado != estado_actual:
-        nuevo_bloque += f"{fecha} | SISTEMA | 🔄 Estado cambiado: {estado_actual} -> {nuevo_estado}\n"
-        sql_estado = nuevo_estado
-    else:
-        sql_estado = estado_actual
-        
-    nuevo_historial = historial_actual + nuevo_bloque
-    
-    c.execute("UPDATE tickets SET historial=?, estado=? WHERE id=?", (nuevo_historial, sql_estado, id_ticket))
-    conn.commit()
-    conn.close()
-
-# Inicializar DB
+# Inicializar
 init_db()
 
-# --- INTERFAZ: LOGIN DE USUARIO ---
-# Barra lateral para seleccionar quién eres
+# --- GESTIÓN DE SESIÓN PARA IMPRESIÓN ---
+if 'vista_impresion_lista' not in st.session_state:
+    st.session_state['vista_impresion_lista'] = False
+if 'vista_impresion_ficha' not in st.session_state:
+    st.session_state['vista_impresion_ficha'] = None
+
+# --- VISTA DE IMPRESIÓN (Si está activa, oculta el resto) ---
+if st.session_state['vista_impresion_lista']:
+    st.button("🔙 Volver al sistema")
+    st.title("Listado de Tickets - Adifincas")
+    st.write(f"Fecha de impresión: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    df = leer_todos()
+    st.table(df[['codigo', 'fecha_creacion', 'cliente', 'motivo', 'prioridad', 'estado', 'asignado_a']])
+    st.warning("Pulsa Ctrl + P para imprimir ahora.")
+    if st.button("Salir de impresión"):
+        st.session_state['vista_impresion_lista'] = False
+        st.rerun()
+    st.stop()
+
+if st.session_state['vista_impresion_ficha']:
+    t = st.session_state['vista_impresion_ficha'] # Datos del ticket
+    st.button("🔙 Volver")
+    
+    st.markdown(f"""
+    # 🎫 Ficha de Incidencia: {t['codigo']}
+    **Fecha:** {t['fecha_creacion']}  |  **Estado:** {t['estado']}  |  **Prioridad:** {t['prioridad']}
+    
+    ---
+    ### 👤 Datos del Cliente
+    * **Nombre:** {t['cliente']}
+    * **Contacto:** {t['contacto']}
+    
+    ### 📝 Motivo / Descripción
+    {t['motivo']}
+    
+    ### 👷 Asignado a
+    {t['asignado_a']} (Creado por: {t['creado_por']})
+    
+    ---
+    ### 📜 Historial de Gestión
+    """)
+    # Formatear historial para papel
+    lineas = t['historial'].split('\n')
+    for l in lineas:
+        if "|" in l:
+            parts = l.split("|", 2)
+            st.markdown(f"**[{parts[0].strip()}] {parts[1].strip()}:** {parts[2].strip()}")
+            
+    st.success("Pulsa Ctrl + P para imprimir o guardar como PDF.")
+    if st.button("Cerrar Vista Impresión"):
+        st.session_state['vista_impresion_ficha'] = None
+        st.rerun()
+    st.stop()
+
+
+# --- INTERFAZ NORMAL ---
+
+# Sidebar
 st.sidebar.title("🔐 Acceso")
-usuario_activo = st.sidebar.selectbox("¿Quién eres?", ["Seleccionar...", "Inés", "Gloria", "Inma", "Chema"])
+usuario = st.sidebar.selectbox("Usuario", ["Seleccionar...", "Inés", "Gloria", "Inma", "Chema"])
+if usuario == "Seleccionar...":
+    st.info("Selecciona tu usuario para comenzar.")
+    st.stop()
 
-if usuario_activo == "Seleccionar...":
-    st.warning("⚠️ Por favor, selecciona tu nombre en la barra lateral izquierda para empezar.")
-    st.stop() # Detiene la app aquí hasta que elija usuario
+st.title("🏢 Adifincas")
 
-st.sidebar.success(f"Hola, {usuario_activo} 👋")
-st.sidebar.divider()
+tab1, tab2 = st.tabs(["📞 NUEVA LLAMADA", "📋 LISTADO Y GESTIÓN"])
 
-# --- PANTALLA PRINCIPAL ---
-st.title("🏢 Gestión de Incidencias Adifincas")
-
-# Pestañas
-tab_nuevo, tab_lista = st.tabs(["📞 NUEVA LLAMADA", "📋 LISTADO DE TICKETS"])
-
-# --- TAB 1: NUEVO TICKET ---
-with tab_nuevo:
-    st.markdown("### Registrar llamada entrante")
+# --- TAB 1: ALTA ---
+with tab1:
     with st.container(border=True):
         c1, c2 = st.columns(2)
         with c1:
             cliente = st.text_input("Cliente / Comunidad")
-            contacto = st.text_input("Teléfono / Email contacto")
-        with c2:
-            motivo = st.text_area("Motivo de la llamada", height=100)
-            col_prio, col_asig = st.columns(2)
-            prioridad = col_prio.selectbox("Prioridad", ["Normal", "Urgente", "MUY URGENTE"])
-            asignado = col_asig.selectbox("Asignar a", ["Administración", "Gerencia", "Mantenimiento", "Inés", "Gloria", "Inma", "Chema"])
+            contacto = st.text_input("Teléfono / Contacto")
             
-        if st.button("💾 Guardar Ticket", type="primary", use_container_width=True):
+            # --- DETECTOR DE COINCIDENCIAS ---
+            if contacto or cliente:
+                duplicados = buscar_coincidencias(contacto if contacto else cliente)
+                if not duplicados.empty:
+                    st.warning(f"⚠️ ¡Atención! He encontrado {len(duplicados)} tickets relacionados:")
+                    st.dataframe(duplicados[['codigo', 'estado', 'motivo']], hide_index=True)
+                else:
+                    if len(str(contacto)) > 4:
+                        st.caption("✅ No hay tickets recientes con este contacto.")
+        
+        with c2:
+            motivo = st.text_area("Motivo", height=100)
+            prio = st.select_slider("Prioridad", ["Normal", "Urgente", "MUY URGENTE"])
+            asig = st.selectbox("Asignar a", ["Administración", "Gerencia", "Mantenimiento", "Inés", "Gloria", "Inma", "Chema"])
+            
+        if st.button("Guardar Ticket", type="primary", use_container_width=True):
             if cliente and motivo:
-                nuevo_cod = crear_ticket(usuario_activo, cliente, contacto, motivo, prioridad, asignado)
-                st.success(f"Ticket {nuevo_cod} creado correctamente!")
+                cod = crear_ticket(usuario, cliente, contacto, motivo, prio, asig)
+                st.success(f"Creado: {cod}")
                 time.sleep(1)
                 st.rerun()
             else:
-                st.error("Falta Cliente o Motivo")
+                st.error("Faltan datos obligatorios.")
 
-# --- TAB 2: LISTADO Y DETALLES ---
-with tab_lista:
-    df = leer_tickets()
+# --- TAB 2: LISTADO ---
+with tab2:
+    df = leer_todos()
     
-    # Filtros arriba
-    col_f1, col_f2 = st.columns([4, 1])
-    ver_cerrados = col_f1.checkbox("Ver también tickets CERRADOS", value=False)
+    # Cabecera con botón de imprimir
+    col_head1, col_head2 = st.columns([5, 1])
+    col_head1.subheader("Listado de Incidencias")
+    if col_head2.button("🖨️ Imprimir Lista"):
+        st.session_state['vista_impresion_lista'] = True
+        st.rerun()
     
+    # Filtro ver cerrados
+    ver_cerrados = st.checkbox("Ver cerrados", value=False)
     if not ver_cerrados:
         df = df[df['estado'] != 'Cerrado']
-    
-    if st.button("🔄 Actualizar lista"):
-        st.rerun()
-
-    # Mostrar tabla resumen (sin detalles)
-    st.markdown("### Últimos Tickets")
-    
-    # Iteramos por los tickets para mostrar tarjetas
-    for index, row in df.iterrows():
-        # Estilo visual según prioridad
-        emoji_prio = "🔴" if row['prioridad'] == "MUY URGENTE" else ("🟠" if row['prioridad'] == "Urgente" else "🟢")
-        titulo = f"{emoji_prio} {row['codigo']} | {row['cliente']} | {row['motivo']}"
         
-        with st.expander(titulo, expanded=False):
-            # --- DETALLE DEL TICKET (AL ABRIR) ---
-            c_det1, c_det2 = st.columns([1, 1])
+    for i, row in df.iterrows():
+        # Icono estado
+        icon = "🔴" if row['prioridad'] == "MUY URGENTE" else "🟢"
+        if row['estado'] == "Cerrado": icon = "⚫"
+        
+        with st.expander(f"{icon} {row['codigo']} | {row['cliente']} | {row['motivo']}"):
+            c_det, c_hist = st.columns([1, 1])
             
-            with c_det1:
-                st.info(f"**Contacto:** {row['contacto']}\n\n**Asignado a:** {row['asignado_a']}")
-                st.caption(f"Creado el {row['fecha_creacion']} por {row['creado_por']}")
+            with c_det:
+                st.write(f"**Contacto:** {row['contacto']}")
+                st.write(f"**Asignado:** {row['asignado_a']}")
+                if st.button("🖨️ Imprimir Ficha", key=f"print_{row['id']}"):
+                    st.session_state['vista_impresion_ficha'] = row.to_dict()
+                    st.rerun()
                 
-                # SECCIÓN HISTORIAL (CHAT)
-                st.write("---")
-                st.write("📜 **Historial de Acciones**")
+                st.divider()
+                # Acciones
+                nota = st.text_area("Nueva nota:", key=f"txt_{row['id']}")
+                col_btn1, col_btn2 = st.columns(2)
                 
-                # Procesamos el texto del historial para que se vea bonito
-                lineas = row['historial'].strip().split('\n')
-                chat_container = st.container(height=300)
-                for linea in lineas:
-                    if "|" in linea:
-                        try:
-                            fecha, user, msg = linea.split("|", 2)
-                            # Renderizamos como mensaje de chat
-                            if user.strip() == "SISTEMA":
-                                chat_container.caption(f"🤖 {msg} ({fecha})")
-                            else:
-                                chat_container.markdown(f"**👤 {user.strip()}:** {msg} _({fecha})_")
-                        except:
-                            chat_container.text(linea)
-            
-            with c_det2:
-                st.write("#### ✍️ Añadir gestión")
-                
-                # Formulario para nueva nota
-                with st.form(key=f"form_{row['id']}"):
-                    nueva_nota = st.text_area("Nota interna / Gestión realizada", placeholder="Escribe qué has hecho...")
-                    
-                    # Acciones de cierre/apertura
-                    if row['estado'] == 'Cerrado':
-                        accion = st.radio("Acción:", ["Solo comentar", "REABRIR ticket"], horizontal=True)
-                    else:
-                        accion = st.radio("Acción:", ["Solo comentar", "CERRAR ticket"], horizontal=True)
-                        
-                    btn_enviar = st.form_submit_button("Enviar Nota / Actualizar")
-                    
-                    if btn_enviar:
-                        nuevo_estado_ticket = None
-                        if accion == "CERRAR ticket":
-                            nuevo_estado_ticket = "Cerrado"
-                        elif accion == "REABRIR ticket":
-                            nuevo_estado_ticket = "En Gestión"
-                            
-                        if nueva_nota or nuevo_estado_ticket:
-                            agregar_nota(row['id'], usuario_activo, nueva_nota, nuevo_estado_ticket)
-                            st.success("Guardado")
-                            time.sleep(1)
+                # Lógica botones
+                if row['estado'] == "Cerrado":
+                    if col_btn1.button("Reabrir", key=f"reopen_{row['id']}"):
+                        agregar_nota(row['id'], usuario, "Reapertura del caso", "En Gestión")
+                        st.rerun()
+                else:
+                    if col_btn1.button("Añadir Nota", key=f"add_{row['id']}"):
+                        if nota:
+                            agregar_nota(row['id'], usuario, nota)
+                            st.success("Añadido")
                             st.rerun()
-                        else:
-                            st.warning("Escribe algo antes de enviar.")
+                    if col_btn2.button("Cerrar Ticket", key=f"close_{row['id']}"):
+                        agregar_nota(row['id'], usuario, nota if nota else "Cierre manual", "Cerrado")
+                        st.rerun()
+
+            with c_hist:
+                st.caption("📜 Historial (Más reciente arriba)")
+                hist_text = row['historial']
+                # Renderizado estilo chat
+                container = st.container(height=300)
+                for linea in hist_text.split('\n'):
+                    if "|" in linea:
+                        parts = linea.split("|", 2)
+                        # parts[0]=fecha, parts[1]=user, parts[2]=msg
+                        if len(parts) == 3:
+                            if "SISTEMA" in parts[1]:
+                                container.caption(f"🤖 {parts[2]} ({parts[0]})")
+                            else:
+                                container.markdown(f"**{parts[1].strip()}:** {parts[2].strip()}")
+                                container.caption(f"_{parts[0]}_")
+                            container.write("---")
