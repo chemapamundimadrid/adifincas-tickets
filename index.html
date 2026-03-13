@@ -503,7 +503,7 @@ tbody tr:last-child td { border-bottom: none; }
                 </div>
                 <div class="tipo-btn" id="btnCon" onclick="selectTipo('con')">
                   <span class="icon">🚨</span>
-                  <span class="label">Con Incidencia / Ticket</span>
+                  <span class="label">Incidencia / Siniestro</span>
                 </div>
               </div>
             </div>
@@ -552,7 +552,7 @@ tbody tr:last-child td { border-bottom: none; }
         </select>
         <select id="fFiltTipo" class="fi fi-sm" style="width:160px;">
           <option value="">Todos los tipos</option>
-          <option value="con">Con incidencia</option>
+          <option value="con">Incidencia/Siniestro</option>
           <option value="sin">Sin incidencia</option>
         </select>
         <input type="month" id="fFiltMonth" class="fi fi-sm" style="width:150px;">
@@ -590,7 +590,7 @@ tbody tr:last-child td { border-bottom: none; }
       <div class="stat-card"><div class="stat-num" id="sPendientes">—</div><div class="stat-lbl">Pendientes</div></div>
       <div class="stat-card"><div class="stat-num" id="sEnCurso">—</div><div class="stat-lbl">En Curso</div></div>
       <div class="stat-card"><div class="stat-num" id="sResueltos">—</div><div class="stat-lbl">Resueltos</div></div>
-      <div class="stat-card"><div class="stat-num" id="sConIncidencia">—</div><div class="stat-lbl">Con Incidencia</div></div>
+      <div class="stat-card"><div class="stat-num" id="sConIncidencia">—</div><div class="stat-lbl">Incidencia/Siniestro</div></div>
       <div class="stat-card"><div class="stat-num" id="sSinIncidencia">—</div><div class="stat-lbl">Sin Incidencia</div></div>
     </div>
     <div class="card">
@@ -621,6 +621,7 @@ tbody tr:last-child td { border-bottom: none; }
         <div class="meta-item"><label>Teléfono</label><span id="mPhone">—</span></div>
         <div class="meta-item"><label>Comunidad</label><span id="mCommunity">—</span></div>
         <div class="meta-item"><label>Proveedor</label><span id="mProvider">—</span></div>
+        <div class="meta-item" id="mFincasPlusDisplay" style="display:none;"><label>Nº Fincas Plus Elite</label><span id="mFincasPlusVal" style="color:#d97706;font-weight:700;">—</span></div>
         <div class="meta-item"><label>Fecha / Hora</label><span id="mDateTime">—</span></div>
         <div class="meta-item"><label>Agente</label><span id="mAgent">—</span></div>
       </div>
@@ -646,6 +647,15 @@ tbody tr:last-child td { border-bottom: none; }
             <option value="En Curso">🟠 En Curso</option>
             <option value="Resuelto">🟢 Resuelto</option>
           </select>
+        </div>
+        <div class="fg" id="fincasPlusGroup">
+          <label class="fl">🔢 Nº Incidencia Fincas Plus Elite</label>
+          <input id="mFincasPlus" type="text" class="fi" placeholder="Ej: INC-2026-0001">
+        </div>
+        <div class="fg" id="adjuntosGroup">
+          <label class="fl">📎 Adjuntar documentos / fotos</label>
+          <input id="mAdjuntos" type="file" class="fi" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="padding:6px;">
+          <div id="adjuntosList" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;"></div>
         </div>
       </div>
     </div>
@@ -789,10 +799,13 @@ document.getElementById("callForm").addEventListener("submit", async e => {
     reason: document.getElementById("fReason").value.trim(),
     notes: buildFirstNote(document.getElementById("fNote").value.trim(), now),
     tipo: tipo,
-    status: tipo === "sin" ? "Resuelto" : (document.getElementById("fStatus").value || "Pendiente")
+    status: tipo === "sin" ? "Resuelto" : (document.getElementById("fStatus").value || "Pendiente"),
+    fincasPlus: "",
+    adjuntos: []
   };
 
-  await push(dbRef, rec);
+  const snap = await push(dbRef, rec);
+  const newDbId = snap.key;
   document.getElementById("callForm").reset();
   selectedTipo = "";
   submitIntent = "";
@@ -802,6 +815,13 @@ document.getElementById("callForm").addEventListener("submit", async e => {
   document.getElementById("matchBox").style.display = "none";
   showToast(`Ticket ${tid} creado correctamente`);
   setNextTicketId();
+  // Si es incidencia/siniestro, abrir modal automáticamente
+  if (tipo === "con") {
+    setTimeout(() => {
+      const t2 = allTickets.find(x => x.dbId === newDbId) || { ...rec, dbId: newDbId };
+      openModal(newDbId);
+    }, 800);
+  }
 });
 
 function buildFirstNote(txt, now) {
@@ -893,7 +913,7 @@ window.applyFilters = function() {
       <td><strong>${t.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-3);">${t.phone||''}</span></td>
       <td style="font-size:12px;">${t.community||'—'}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.reason||'—'}</td>
-      <td><span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incid.':'Con incid.'}</span></td>
+      <td><span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incid.':'Incid./Sin.'}</span></td>
       <td><span class="tag ${tagClass(t)}">${tagLabel(t)}</span></td>
       <td style="font-size:12px;">${t.agent||'—'}</td>
       <td><button class="btn-act" onclick="openModal('${t.dbId}')">👁 Ver</button></td>
@@ -954,7 +974,7 @@ window.openModal = function(dbId) {
 
   document.getElementById("mTid").textContent      = t.ticketId || '—';
   document.getElementById("mStatus").innerHTML     = `<span class="tag ${tagClass(t)}">${tagLabel(t)}</span>`;
-  document.getElementById("mTipo").innerHTML       = `<span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incidencia':'Con incidencia'}</span>`;
+  document.getElementById("mTipo").innerHTML       = `<span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro'}</span>`;
   document.getElementById("mName").textContent     = t.name || '—';
   document.getElementById("mPhone").textContent    = t.phone || '—';
   document.getElementById("mCommunity").textContent= t.community || '—';
@@ -962,8 +982,29 @@ window.openModal = function(dbId) {
   document.getElementById("mDateTime").textContent = (t.date||'') + ' ' + (t.time||'');
   document.getElementById("mAgent").textContent    = t.agent || '—';
   document.getElementById("mReason").textContent   = t.reason || '—';
+  const fpd = document.getElementById("mFincasPlusDisplay");
+  const fpv = document.getElementById("mFincasPlusVal");
+  if (t.fincasPlus) { fpd.style.display="block"; fpv.textContent = t.fincasPlus; }
+  else { fpd.style.display="none"; }
   document.getElementById("mEditStatus").value     = t.status || 'Pendiente';
+  document.getElementById("mFincasPlus").value     = t.fincasPlus || "";
   document.getElementById("mNewNote").value        = "";
+  document.getElementById("adjuntosList").innerHTML = "";
+  document.getElementById("mAdjuntos").value = "";
+  // Mostrar adjuntos guardados
+  if (t.adjuntos && t.adjuntos.length) {
+    const al = document.getElementById("adjuntosList");
+    t.adjuntos.forEach(a => {
+      const chip = document.createElement("a");
+      chip.href = a.data; chip.download = a.name; chip.target = "_blank";
+      chip.style.cssText = "display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:20px;font-size:12px;color:#1a4fa0;text-decoration:none;";
+      chip.innerHTML = "📎 " + a.name;
+      al.appendChild(chip);
+    });
+  }
+  // Mostrar campo Fincas Plus solo si es incidencia/siniestro
+  document.getElementById("fincasPlusGroup").style.display = t.tipo === "con" ? "block" : "none";
+  document.getElementById("adjuntosGroup").style.display = "block";
 
   // Render history
   renderHistory(t.notes || "");
@@ -1008,9 +1049,28 @@ window.saveNote = async function() {
   const append = note ? "\n\n" + header + "\n" + note : "";
   const updatedNotes = (t.notes || "") + append;
 
+  const fincasPlus = document.getElementById("mFincasPlus").value.trim();
+  
+  // Handle file attachments
+  const files = document.getElementById("mAdjuntos").files;
+  const t2 = allTickets.find(x => x.dbId === currentModalId);
+  let adjuntos = (t2 && t2.adjuntos) ? t2.adjuntos : [];
+  
+  if (files.length > 0) {
+    const readFile = (file) => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve({ name: file.name, data: e.target.result, type: file.type });
+      reader.readAsDataURL(file);
+    });
+    const newFiles = await Promise.all(Array.from(files).map(readFile));
+    adjuntos = [...adjuntos, ...newFiles];
+  }
+
   await update(ref(db, 'llamadas_v6/' + currentModalId), {
     status,
-    notes: updatedNotes
+    notes: updatedNotes,
+    fincasPlus,
+    adjuntos
   });
 
   showToast("Nota guardada y estado actualizado");
@@ -1030,7 +1090,7 @@ window.printTicket = function() {
     <p><strong>Llamante:</strong> ${t.name||'—'} | <strong>Teléfono:</strong> ${t.phone||'—'}</p>
     <p><strong>Comunidad:</strong> ${t.community||'—'} | <strong>Proveedor:</strong> ${t.provider||'—'}</p>
     <p><strong>Asunto:</strong> ${t.reason||'—'}</p>
-    <p><strong>Estado:</strong> ${t.status||'—'} | <strong>Tipo:</strong> ${t.tipo==='sin'?'Sin incidencia':'Con incidencia'}</p>
+    <p><strong>Estado:</strong> ${t.status||'—'} | <strong>Tipo:</strong> ${t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro'}</p>
     <hr>
     <h3>Historial de Notas:</h3>
     <pre style="white-space:pre-wrap;font-size:12px;">${t.notes||'Sin notas.'}</pre>
@@ -1061,7 +1121,7 @@ window.exportCSV = function() {
   const rows = allTickets.map(t => [
     t.ticketId||'', t.date||'', t.time||'', t.agent||'',
     t.name||'', t.phone||'', t.community||'', t.provider||'',
-    t.reason||'', t.tipo==='sin'?'Sin incidencia':'Con incidencia',
+    t.reason||'', t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro',
     t.status||'', (t.notes||'').replace(/"/g,'""')
   ].map(v => `"${v}"`).join(","));
   const csv = [h.join(","), ...rows].join("\n");
