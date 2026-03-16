@@ -30,390 +30,132 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* ── TOAST ── */
-#toasts {
-  position: fixed; top: 16px; right: 16px; z-index: 99999;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.toast {
-  background: var(--surface); border-radius: 8px;
-  box-shadow: var(--shadow-lg); padding: 12px 16px;
-  display: flex; align-items: center; gap: 10px;
-  border-left: 4px solid var(--success);
-  animation: toastIn .3s ease; min-width: 260px; font-weight: 500;
-}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+#toasts { position: fixed; top: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--surface); border-radius: 8px; box-shadow: var(--shadow-lg); padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--success); animation: toastIn .3s ease; min-width: 260px; font-weight: 500; }
 .toast.error { border-left-color: var(--danger); }
 @keyframes toastIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-/* ── LOGIN ── */
-#loginScreen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: linear-gradient(145deg, #0f2855 0%, #1a4fa0 50%, #0ea5e9 100%);
-  display: flex; align-items: center; justify-content: center;
-}
-.login-card {
-  background: var(--surface); border-radius: 16px;
-  padding: 44px 40px; width: 340px;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.35);
-}
-.login-logo {
-  text-align: center; margin-bottom: 28px;
-}
-.login-logo .brand {
-  font-size: 26px; font-weight: 700; color: var(--primary);
-  letter-spacing: -0.5px;
-}
-.login-logo .sub {
-  font-size: 12px; color: var(--text-3); margin-top: 2px;
-}
-.login-field {
-  width: 100%; padding: 10px 14px;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-family: inherit; font-size: 14px;
-  margin-bottom: 12px; transition: border-color .2s;
-}
+#loginScreen { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(145deg, #0f2855 0%, #1a4fa0 50%, #0ea5e9 100%); display: flex; align-items: center; justify-content: center; }
+.login-card { background: var(--surface); border-radius: 16px; padding: 44px 40px; width: 340px; box-shadow: 0 32px 80px rgba(0,0,0,0.35); }
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo .brand { font-size: 26px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+.login-logo .sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.login-field { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; margin-bottom: 12px; transition: border-color .2s; }
 .login-field:focus { outline: none; border-color: var(--primary-light); }
-.btn-login {
-  width: 100%; padding: 11px; background: var(--primary);
-  color: white; border: none; border-radius: 8px;
-  font-family: inherit; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: background .2s; margin-top: 4px;
-}
+.btn-login { width: 100%; padding: 11px; background: var(--primary); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; margin-top: 4px; }
 .btn-login:hover { background: var(--primary-light); }
 .login-err { color: var(--danger); font-size: 12px; margin-top: 8px; text-align: center; display: none; }
-
-/* ── APP SHELL ── */
 #app { display: none; min-height: 100vh; }
-
-/* ── TOP BAR ── */
-.topbar {
-  background: var(--primary); color: white;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 54px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  position: sticky; top: 0; z-index: 100;
-}
+.topbar { background: var(--primary); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 54px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
 .topbar-brand { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
 .topbar-brand span { opacity: .6; font-size: 11px; font-weight: 400; margin-left: 6px; }
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
-.user-chip {
-  background: rgba(255,255,255,0.15); padding: 4px 12px;
-  border-radius: 20px; font-size: 12px; font-weight: 600;
-}
-.btn-nav {
-  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
-  color: white; padding: 6px 14px; border-radius: 7px;
-  font-family: inherit; font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: background .2s;
-}
+.user-chip { background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.btn-nav { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 6px 14px; border-radius: 7px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .2s; }
 .btn-nav:hover { background: rgba(255,255,255,0.25); }
 .btn-nav.green { background: rgba(5,150,105,0.7); border-color: rgba(5,150,105,0.9); }
-.btn-nav.green:hover { background: rgba(5,150,105,0.9); }
-
-/* ── TABS ── */
-.tabs {
-  display: flex; gap: 0; border-bottom: 2px solid var(--border);
-  background: var(--surface); padding: 0 24px;
-}
-.tab {
-  padding: 12px 20px; font-size: 13px; font-weight: 600;
-  color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent;
-  margin-bottom: -2px; transition: all .2s; white-space: nowrap;
-}
+.tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); background: var(--surface); padding: 0 24px; }
+.tab { padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s; white-space: nowrap; }
 .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-.tab:hover { color: var(--primary); }
-
-/* ── MAIN CONTENT ── */
 .page { display: none; padding: 24px; }
 .page.active { display: block; }
-
-/* ── NUEVA LLAMADA ── */
-.call-grid {
-  display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 24px;
-  align-items: start;
-}
-.card {
-  background: var(--surface); border-radius: var(--radius);
-  box-shadow: var(--shadow); overflow: hidden;
-}
-.card-head {
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
+.call-grid { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.card-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .card-head h3 { font-size: 14px; font-weight: 700; color: var(--text); }
 .card-body { padding: 20px; }
-
-/* TICKET BADGE EN FORM */
-.ticket-preview {
-  background: var(--primary-pale); border: 1.5px dashed var(--primary-light);
-  border-radius: 8px; padding: 10px 14px;
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 18px;
-}
-.ticket-preview .tid {
-  font-family: 'DM Mono', monospace; font-size: 15px;
-  font-weight: 500; color: var(--primary);
-}
+.ticket-preview { background: var(--primary-pale); border: 1.5px dashed var(--primary-light); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.ticket-preview .tid { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500; color: var(--primary); }
 .ticket-preview .tdt { font-size: 11px; color: var(--text-2); }
-
-/* FORM FIELDS */
 .fg { margin-bottom: 14px; }
-label.fl {
-  display: block; font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .5px;
-  color: var(--text-2); margin-bottom: 5px;
-}
-input.fi, textarea.fi, select.fi {
-  width: 100%; padding: 9px 12px;
-  border: 1.5px solid var(--border); border-radius: 7px;
-  font-family: inherit; font-size: 14px; color: var(--text);
-  background: var(--surface); transition: border-color .2s;
-}
-input.fi:focus, textarea.fi:focus, select.fi:focus {
-  outline: none; border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-}
+label.fl { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-2); margin-bottom: 5px; }
+input.fi, textarea.fi, select.fi { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 14px; color: var(--text); background: var(--surface); transition: border-color .2s; }
+input.fi:focus, textarea.fi:focus, select.fi:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 textarea.fi { resize: vertical; min-height: 72px; }
-
-/* TIPO LLAMADA */
 .tipo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.tipo-btn {
-  padding: 14px 10px; border: 2px solid var(--border);
-  border-radius: 9px; cursor: pointer; text-align: center;
-  transition: all .2s; background: var(--surface2);
-}
+.tipo-btn { padding: 14px 10px; border: 2px solid var(--border); border-radius: 9px; cursor: pointer; text-align: center; transition: all .2s; background: var(--surface2); }
 .tipo-btn .icon { font-size: 22px; display: block; margin-bottom: 4px; }
 .tipo-btn .label { font-size: 12px; font-weight: 700; display: block; color: var(--text-2); }
 .tipo-btn.selected-sin { border-color: var(--success); background: var(--success-pale); }
 .tipo-btn.selected-sin .label { color: var(--success); }
 .tipo-btn.selected-con { border-color: var(--warning); background: var(--warning-pale); }
 .tipo-btn.selected-con .label { color: var(--warning); }
-
-/* MATCH ALERT */
-.match-box {
-  background: var(--warning-pale); border: 1px solid #fcd34d;
-  border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; display: none;
-}
-.match-box h4 { font-size: 12px; font-weight: 700; color: var(--warning); margin-bottom: 8px; }
-.match-item {
-  background: white; border: 1px solid #fed7aa; border-radius: 6px;
-  padding: 8px 10px; margin-bottom: 6px; display: flex;
-  align-items: center; justify-content: space-between;
-  font-size: 12px;
-}
+.match-box { background: #fff4ed; border: 2px solid #ea580c; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; display: none; animation: pulseOrange 1s ease-in-out; }
+@keyframes pulseOrange { 0% { box-shadow: 0 0 0 0 rgba(234,88,12,0.4); } 70% { box-shadow: 0 0 0 8px rgba(234,88,12,0); } 100% { box-shadow: 0 0 0 0 rgba(234,88,12,0); } }
+.match-box h4 { font-size: 12px; font-weight: 700; color: #c2410c; margin-bottom: 8px; }
+.match-item { background: white; border: 1px solid #ea580c; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
 .match-item:last-child { margin-bottom: 0; }
-
-/* SUBMIT AREA */
 .submit-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
-.btn-submit {
-  padding: 12px; border: none; border-radius: 8px;
-  font-family: inherit; font-size: 13px; font-weight: 700;
-  cursor: pointer; transition: all .2s;
-}
+.btn-submit { padding: 12px; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; }
 .btn-submit.sin { background: var(--success); color: white; }
-.btn-submit.sin:hover { background: #047857; }
 .btn-submit.con { background: var(--warning); color: white; }
-.btn-submit.con:hover { background: #b45309; }
-
-/* RECENT PANEL */
 .recent-list { max-height: 600px; overflow-y: auto; }
-.recent-item {
-  padding: 14px 16px; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background .15s; display: flex;
-  align-items: flex-start; gap: 12px;
-}
+.recent-item { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .15s; display: flex; align-items: flex-start; gap: 12px; }
 .recent-item:hover { background: var(--surface2); }
-.recent-item:last-child { border-bottom: none; }
-.ri-tid {
-  font-family: 'DM Mono', monospace; font-size: 11px;
-  color: var(--ticket-color); font-weight: 500; white-space: nowrap;
-}
+.ri-tid { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ticket-color); font-weight: 500; white-space: nowrap; }
 .ri-body { flex: 1; min-width: 0; }
 .ri-name { font-weight: 600; font-size: 13px; }
 .ri-sub { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ri-meta { font-size: 11px; color: var(--text-3); }
-
-/* ── TICKETS TABLE ── */
-.filters-row {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  align-items: center;
-}
+.filters-row { display: flex; gap: 10px; flex-wrap: wrap; padding: 16px 20px; border-bottom: 1px solid var(--border); align-items: center; }
 .fi-sm { padding: 8px 12px; font-size: 13px; }
 .fi-search { flex: 1; min-width: 200px; }
-.btn-filter {
-  background: var(--primary); color: white; border: none;
-  padding: 8px 16px; border-radius: 7px; font-family: inherit;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-}
-.btn-export {
-  background: var(--success); color: white; border: none;
-  padding: 8px 16px; border-radius: 7px; font-family: inherit;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-}
-
+.btn-filter { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-export { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .tbl-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-thead th {
-  text-align: left; padding: 11px 14px;
-  background: var(--surface2); font-size: 11px;
-  text-transform: uppercase; letter-spacing: .5px;
-  color: var(--text-2); font-weight: 700;
-  border-bottom: 1px solid var(--border); white-space: nowrap;
-}
-tbody td {
-  padding: 11px 14px; border-bottom: 1px solid var(--border);
-  font-size: 13px; vertical-align: middle;
-}
+thead th { text-align: left; padding: 11px 14px; background: var(--surface2); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-2); font-weight: 700; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
 tbody tr:hover { background: var(--surface2); }
-tbody tr:last-child td { border-bottom: none; }
-
-.tid-badge {
-  font-family: 'DM Mono', monospace; font-size: 11px;
-  font-weight: 500; color: var(--ticket-color);
-  background: #eef2ff; padding: 2px 7px; border-radius: 4px;
-}
-
-/* STATUS TAGS */
-.tag {
-  display: inline-block; padding: 3px 9px; border-radius: 20px;
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .3px; white-space: nowrap;
-}
+.tid-badge { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--ticket-color); background: #eef2ff; padding: 2px 7px; border-radius: 4px; }
+.tag { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; }
 .tag-pendiente { background: #fee2e2; color: #991b1b; }
-.tag-en-curso  { background: #fef3c7; color: #92400e; }
-.tag-resuelto  { background: #d1fae5; color: #065f46; }
+.tag-en-curso { background: #fef3c7; color: #92400e; }
+.tag-resuelto { background: #d1fae5; color: #065f46; }
 .tag-sin { background: #f1f5f9; color: #475569; }
 .tag-con { background: #fff7ed; color: #c2410c; }
-
-.btn-act {
-  background: var(--primary-pale); color: var(--primary);
-  border: 1px solid #bfdbfe; padding: 4px 10px;
-  border-radius: 5px; font-family: inherit; font-size: 12px;
-  font-weight: 600; cursor: pointer; transition: all .15s;
-}
+.btn-act { background: var(--primary-pale); color: var(--primary); border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 5px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
 .btn-act:hover { background: var(--primary); color: white; }
-
-/* ── STATS ── */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.stat-card {
-  background: var(--surface); border-radius: var(--radius);
-  padding: 20px; box-shadow: var(--shadow); text-align: center;
-}
+.stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); text-align: center; }
 .stat-num { font-size: 36px; font-weight: 700; color: var(--primary); line-height: 1; }
 .stat-lbl { font-size: 12px; color: var(--text-2); font-weight: 600; margin-top: 4px; }
-
-/* ── MODAL ── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(15,23,42,0.6); z-index: 1000;
-  align-items: center; justify-content: center;
-  padding: 20px;
-}
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal {
-  background: var(--surface); border-radius: 14px;
-  width: 100%; max-width: 680px; max-height: 90vh;
-  overflow-y: auto; box-shadow: var(--shadow-lg);
-  animation: modalIn .25s ease;
-}
+.modal { background: var(--surface); border-radius: 14px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalIn .25s ease; }
 @keyframes modalIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-header {
-  padding: 20px 24px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; background: var(--surface); z-index: 1;
-}
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
 .modal-header h2 { font-size: 16px; font-weight: 700; }
-.btn-x {
-  background: var(--surface2); border: 1px solid var(--border);
-  width: 30px; height: 30px; border-radius: 50%;
-  cursor: pointer; font-size: 16px; line-height: 30px;
-  text-align: center; color: var(--text-2); transition: all .15s;
-}
+.btn-x { background: var(--surface2); border: 1px solid var(--border); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 30px; text-align: center; color: var(--text-2); transition: all .15s; }
 .btn-x:hover { background: var(--danger); color: white; border-color: var(--danger); }
 .modal-body { padding: 20px 24px; }
-
 .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 .meta-item label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; display: block; margin-bottom: 2px; }
 .meta-item span { font-size: 13px; font-weight: 600; }
-
-/* HISTORIAL */
 .hist-section { margin-bottom: 16px; }
 .hist-section label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; display: block; margin-bottom: 8px; }
-.hist-box {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 12px 14px;
-  font-size: 13px; line-height: 1.7; color: var(--text);
-  max-height: 240px; overflow-y: auto;
-  white-space: pre-wrap; font-family: 'DM Mono', monospace;
-}
+.hist-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; line-height: 1.7; color: var(--text); max-height: 240px; overflow-y: auto; white-space: pre-wrap; }
 .note-entry { margin-bottom: 12px; }
 .note-entry .note-meta { font-size: 10px; color: var(--text-3); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
-.note-entry .note-body { color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; }
+.note-entry .note-body { color: var(--text); font-size: 13px; }
 .note-entry + .note-entry { border-top: 1px dashed var(--border); padding-top: 12px; }
-
-/* MODAL ACTIONS */
 .modal-add-note { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
-.modal-footer {
-  padding: 16px 24px; border-top: 1px solid var(--border);
-  display: flex; gap: 10px; flex-wrap: wrap;
-  position: sticky; bottom: 0; background: var(--surface);
-}
-.btn-modal {
-  padding: 9px 16px; border-radius: 7px; font-family: inherit;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  border: none; transition: all .2s; display: flex; align-items: center; gap: 6px;
-}
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; position: sticky; bottom: 0; background: var(--surface); }
+.btn-modal { padding: 9px 16px; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; display: flex; align-items: center; gap: 6px; }
 .btn-modal.primary { background: var(--primary); color: white; }
-.btn-modal.primary:hover { background: var(--primary-light); }
 .btn-modal.success { background: var(--success); color: white; }
-.btn-modal.success:hover { background: #047857; }
 .btn-modal.danger { background: var(--danger); color: white; }
-.btn-modal.danger:hover { background: #b91c1c; }
 .btn-modal.ghost { background: var(--surface2); color: var(--text-2); border: 1px solid var(--border); }
-.btn-modal.ghost:hover { border-color: var(--text-2); color: var(--text); }
 .btn-modal.orange { background: #ea580c; color: white; }
-.btn-modal.orange:hover { background: #c2410c; }
-
-/* PRINT */
-@media print {
-  body * { visibility: hidden; }
-  #printArea, #printArea * { visibility: visible; }
-  #printArea { position: absolute; inset: 0; padding: 30px; }
-}
+@media print { body * { visibility: hidden; } #printArea, #printArea * { visibility: visible; } #printArea { position: absolute; inset: 0; padding: 30px; } }
 #printArea { display: none; }
-
-/* RESPONSIVE */
-@media (max-width: 860px) {
-  .call-grid { grid-template-columns: 1fr; }
-  .meta-grid { grid-template-columns: 1fr; }
-  .tabs { overflow-x: auto; padding: 0 12px; }
-  .page { padding: 16px; }
-  .submit-area { grid-template-columns: 1fr; }
-}
+@media (max-width: 860px) { .call-grid { grid-template-columns: 1fr; } .meta-grid { grid-template-columns: 1fr; } .tabs { overflow-x: auto; padding: 0 12px; } .page { padding: 16px; } .submit-area { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-
 <div id="toasts"></div>
-
-<!-- PRINT AREA -->
 <div id="printArea"></div>
-
-<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
@@ -428,8 +170,6 @@ tbody tr:last-child td { border-bottom: none; }
     <div id="loginErr" class="login-err">Credenciales incorrectas</div>
   </div>
 </div>
-
-<!-- APP -->
 <div id="app">
   <nav class="topbar">
     <div class="topbar-brand">ADIFINCAS <span>v6.0 · Gestión de Llamadas</span></div>
@@ -439,75 +179,42 @@ tbody tr:last-child td { border-bottom: none; }
       <button class="btn-nav" onclick="logout()">Salir</button>
     </div>
   </nav>
-
   <div class="tabs">
     <div class="tab active" onclick="switchTab('nueva')">📞 Nueva Llamada</div>
     <div class="tab" onclick="switchTab('tickets')">🗂️ Tickets</div>
     <div class="tab" onclick="switchTab('informes')">📊 Informes</div>
   </div>
-
-  <!-- ── NUEVA LLAMADA ── -->
   <div class="page active" id="tab-nueva">
     <div class="call-grid">
-
-      <!-- FORMULARIO -->
       <div class="card">
         <div class="card-head">
           <h3>🎫 Registrar Llamada</h3>
-          <span id="clockDisplay" style="font-size:12px; color:var(--text-2); font-family:'DM Mono',monospace;"></span>
+          <span id="clockDisplay" style="font-size:12px;color:var(--text-2);font-family:'DM Mono',monospace;"></span>
         </div>
         <div class="card-body">
           <div class="ticket-preview">
             <span class="tid" id="previewTid">—</span>
             <span class="tdt" id="previewDt">—</span>
           </div>
-
           <form id="callForm">
-            <div class="fg">
-              <label class="fl">📞 Teléfono</label>
-              <input id="fPhone" type="text" class="fi" placeholder="6XX XXX XXX" autocomplete="off" required>
-            </div>
-            <div class="fg">
-              <label class="fl">👤 Nombre del llamante</label>
-              <input id="fName" type="text" class="fi" placeholder="Nombre completo" autocomplete="off" required>
-            </div>
-            <div class="fg">
-              <label class="fl">🏢 Comunidad</label>
-              <input id="fCommunity" type="text" class="fi" placeholder="Ej: C/ Mayor 1, Esc. A" autocomplete="off">
-            </div>
-            <div class="fg">
-              <label class="fl">🔧 Proveedor (si aplica)</label>
-              <input id="fProvider" type="text" class="fi" placeholder="Empresa / Técnico" autocomplete="off">
-            </div>
-
+            <div class="fg"><label class="fl">📞 Teléfono</label><input id="fPhone" type="text" class="fi" placeholder="6XX XXX XXX" autocomplete="off" required></div>
+            <div class="fg"><label class="fl">👤 Nombre del llamante</label><input id="fName" type="text" class="fi" placeholder="Nombre completo" autocomplete="off" required></div>
+            <div class="fg"><label class="fl">🏢 Comunidad</label><input id="fCommunity" type="text" class="fi" placeholder="Ej: C/ Mayor 1, Esc. A" autocomplete="off"></div>
+            <div class="fg"><label class="fl">🔧 Proveedor (si aplica)</label><input id="fProvider" type="text" class="fi" placeholder="Empresa / Técnico" autocomplete="off"></div>
             <div id="matchBox" class="match-box">
-              <h4>⚠️ Tickets abiertos con este contacto:</h4>
+              <h4>🟠 ¡ATENCIÓN! Este contacto ya tiene tickets registrados:</h4>
+              <p style="font-size:11px;color:#c2410c;margin-bottom:8px;">Revisa antes de crear uno nuevo. Si es diferente, continúa.</p>
               <div id="matchList"></div>
             </div>
-
-            <div class="fg">
-              <label class="fl">📝 Motivo / Asunto</label>
-              <input id="fReason" type="text" class="fi" placeholder="Resumen breve del motivo" required>
-            </div>
-            <div class="fg">
-              <label class="fl">📋 Nota inicial / Detalle</label>
-              <textarea id="fNote" class="fi" placeholder="Descripción detallada de la llamada..."></textarea>
-            </div>
-
+            <div class="fg"><label class="fl">📝 Motivo / Asunto</label><input id="fReason" type="text" class="fi" placeholder="Resumen breve del motivo" required></div>
+            <div class="fg"><label class="fl">📋 Nota inicial / Detalle</label><textarea id="fNote" class="fi" placeholder="Descripción detallada de la llamada..."></textarea></div>
             <div class="fg">
               <label class="fl">Tipo de llamada</label>
               <div class="tipo-grid">
-                <div class="tipo-btn" id="btnSin" onclick="selectTipo('sin')">
-                  <span class="icon">📁</span>
-                  <span class="label">Sin Incidencia</span>
-                </div>
-                <div class="tipo-btn" id="btnCon" onclick="selectTipo('con')">
-                  <span class="icon">🚨</span>
-                  <span class="label">Incidencia / Siniestro</span>
-                </div>
+                <div class="tipo-btn" id="btnSin" onclick="selectTipo('sin')"><span class="icon">📁</span><span class="label">Sin Incidencia</span></div>
+                <div class="tipo-btn" id="btnCon" onclick="selectTipo('con')"><span class="icon">🚨</span><span class="label">Incidencia / Siniestro</span></div>
               </div>
             </div>
-
             <div class="fg" id="statusGroup" style="display:none;">
               <label class="fl">Estado inicial</label>
               <select id="fStatus" class="fi">
@@ -516,7 +223,6 @@ tbody tr:last-child td { border-bottom: none; }
                 <option value="Resuelto">🟢 Resuelto</option>
               </select>
             </div>
-
             <div class="submit-area">
               <button type="submit" class="btn-submit sin" id="btnSubmitSin">📁 Guardar sin incidencia</button>
               <button type="submit" class="btn-submit con" id="btnSubmitCon">🚨 Abrir Ticket</button>
@@ -524,68 +230,39 @@ tbody tr:last-child td { border-bottom: none; }
           </form>
         </div>
       </div>
-
-      <!-- RECIENTES -->
       <div class="card">
         <div class="card-head">
           <h3>🕐 Últimas llamadas</h3>
           <span id="countBadge" style="background:#eef2ff;color:var(--ticket-color);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">0</span>
         </div>
-        <div class="recent-list" id="recentList">
-          <div style="padding:24px; text-align:center; color:var(--text-3);">Conectando...</div>
-        </div>
+        <div class="recent-list" id="recentList"><div style="padding:24px;text-align:center;color:var(--text-3);">Conectando...</div></div>
       </div>
-
     </div>
   </div>
-
-  <!-- ── TICKETS ── -->
   <div class="page" id="tab-tickets">
     <div class="card">
       <div class="filters-row">
         <input type="text" id="fSearch" class="fi fi-sm fi-search" placeholder="🔍 Buscar por ID, nombre, teléfono, comunidad...">
-        <select id="fFiltStatus" class="fi fi-sm" style="width:140px;">
-          <option value="">Todos los estados</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="En Curso">En Curso</option>
-          <option value="Resuelto">Resuelto</option>
-        </select>
-        <select id="fFiltTipo" class="fi fi-sm" style="width:160px;">
-          <option value="">Todos los tipos</option>
-          <option value="con">Incidencia/Siniestro</option>
-          <option value="sin">Sin incidencia</option>
-        </select>
+        <select id="fFiltStatus" class="fi fi-sm" style="width:140px;"><option value="">Todos los estados</option><option value="Pendiente">Pendiente</option><option value="En Curso">En Curso</option><option value="Resuelto">Resuelto</option></select>
+        <select id="fFiltTipo" class="fi fi-sm" style="width:160px;"><option value="">Todos los tipos</option><option value="con">Incidencia/Siniestro</option><option value="sin">Sin incidencia</option></select>
         <input type="month" id="fFiltMonth" class="fi fi-sm" style="width:150px;">
-        <input type="text" id="fFiltCom" class="fi fi-sm" placeholder="Comunidad..." style="width:160px;">
+        <input type="text" id="fFiltCom" class="fi fi-sm" placeholder="Comunidad..." style="width:150px;">
+        <input type="text" id="fFiltProv" class="fi fi-sm" placeholder="Proveedor..." style="width:140px;">
+        <input type="text" id="fFiltAgent" class="fi fi-sm" placeholder="Agente..." style="width:120px;">
         <button class="btn-filter" onclick="applyFilters()">Filtrar</button>
+        <button class="btn-filter" onclick="clearFilters()" style="background:#64748b;">✕ Limpiar</button>
         <button class="btn-export" onclick="exportCSV()">📥 Excel</button>
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Ticket</th>
-              <th>Fecha / Hora</th>
-              <th>Llamante</th>
-              <th>Comunidad</th>
-              <th>Asunto</th>
-              <th>Tipo</th>
-              <th>Estado</th>
-              <th>Agente</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3);">Cargando tickets...</td></tr>
-          </tbody>
+          <thead><tr><th>Ticket</th><th>Fecha / Hora</th><th>Llamante</th><th>Comunidad</th><th>Asunto</th><th>Estado / Tipo</th><th>Agente</th><th></th></tr></thead>
+          <tbody id="tableBody"><tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-3);">Cargando tickets...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
-
-  <!-- ── INFORMES ── -->
   <div class="page" id="tab-informes">
-    <div class="stats-grid" id="statsGrid">
+    <div class="stats-grid">
       <div class="stat-card"><div class="stat-num" id="sTotalTickets">—</div><div class="stat-lbl">Total Tickets</div></div>
       <div class="stat-card"><div class="stat-num" id="sPendientes">—</div><div class="stat-lbl">Pendientes</div></div>
       <div class="stat-card"><div class="stat-num" id="sEnCurso">—</div><div class="stat-lbl">En Curso</div></div>
@@ -596,21 +273,15 @@ tbody tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="card-head"><h3>📋 Resumen por Comunidad</h3></div>
       <div class="card-body">
-        <table>
-          <thead><tr><th>Comunidad</th><th>Total</th><th>Pendientes</th><th>Resueltos</th></tr></thead>
-          <tbody id="communityStats"></tbody>
-        </table>
+        <table><thead><tr><th>Comunidad</th><th>Total</th><th>Pendientes</th><th>Resueltos</th></tr></thead><tbody id="communityStats"></tbody></table>
       </div>
     </div>
   </div>
-
-</div><!-- /app -->
-
-<!-- ── MODAL DETALLE ── -->
+</div>
 <div class="modal-overlay" id="detailModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Detalle <span id="mTid" class="tid-badge" style="font-size:13px; margin-left:6px;">—</span></h2>
+      <h2>Detalle <span id="mTid" class="tid-badge" style="font-size:13px;margin-left:6px;">—</span></h2>
       <button class="btn-x" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -627,68 +298,46 @@ tbody tr:last-child td { border-bottom: none; }
       </div>
       <div class="meta-item" style="margin-bottom:16px;">
         <label style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);font-weight:700;display:block;margin-bottom:4px;">Asunto</label>
-        <span id="mReason" style="font-weight:600; font-size:14px;">—</span>
+        <span id="mReason" style="font-weight:600;font-size:14px;">—</span>
       </div>
-
       <div class="hist-section">
         <label>📋 Historial de Notas</label>
         <div class="hist-box" id="mHistory"></div>
       </div>
-
       <div class="modal-add-note">
+        <div class="fg"><label class="fl">➕ Añadir nota de seguimiento</label><textarea id="mNewNote" class="fi" rows="3" placeholder="Escribe la nueva nota aquí..."></textarea></div>
         <div class="fg">
-          <label class="fl">➕ Añadir nota de seguimiento</label>
-          <textarea id="mNewNote" class="fi" rows="3" placeholder="Escribe la nueva nota aquí..."></textarea>
+          <label class="fl">Estado manual (opcional)</label>
+          <select id="mEditStatus" class="fi"><option value="Pendiente">🔴 Pendiente</option><option value="En Curso">🟠 En Curso</option><option value="Resuelto">🟢 Resuelto</option></select>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px;">💡 Usa los botones de abajo para gestionar el estado automáticamente.</div>
         </div>
-        <div class="fg">
-          <label class="fl">Actualizar estado</label>
-          <select id="mEditStatus" class="fi">
-            <option value="Pendiente">🔴 Pendiente</option>
-            <option value="En Curso">🟠 En Curso</option>
-            <option value="Resuelto">🟢 Resuelto</option>
-          </select>
-        </div>
-        <div class="fg" id="fincasPlusGroup">
-          <label class="fl">🔢 Nº Incidencia Fincas Plus Elite</label>
-          <input id="mFincasPlus" type="text" class="fi" placeholder="Ej: INC-2026-0001">
-        </div>
-        <div class="fg" id="adjuntosGroup">
-          <label class="fl">📎 Adjuntar documentos / fotos</label>
-          <input id="mAdjuntos" type="file" class="fi" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="padding:6px;">
-          <div id="adjuntosList" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;"></div>
-        </div>
+        <div class="fg" id="fincasPlusGroup"><label class="fl">🔢 Nº Incidencia Fincas Plus Elite</label><input id="mFincasPlus" type="text" class="fi" placeholder="Ej: INC-2026-0001"></div>
+        <div class="fg" id="adjuntosGroup"><label class="fl">📎 Adjuntar documentos / fotos</label><input id="mAdjuntos" type="file" class="fi" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="padding:6px;"><div id="adjuntosList" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;"></div></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-modal success" onclick="saveNote()">💾 Guardar nota</button>
+      <button class="btn-modal success" onclick="saveNote('abierto')">📂 Guardar y dejar abierto</button>
+      <button class="btn-modal ghost" onclick="saveNote('cerrado')" style="background:#059669;color:white;border:none;">✅ Guardar y cerrar ticket</button>
       <button class="btn-modal primary" onclick="printTicket()">🖨️ Imprimir</button>
       <button class="btn-modal orange" onclick="sendEmail()">📧 Enviar email</button>
       <button class="btn-modal danger" onclick="openFincasPlus()">🔗 Fincas Plus</button>
-      <button class="btn-modal ghost" onclick="closeModal()" style="margin-left:auto;">Cerrar</button>
+      <button class="btn-modal ghost" id="btnConvertir" onclick="convertirAIncidencia()" style="display:none;background:#7c3aed;color:white;border:none;">🔄 Convertir a Incidencia</button>
+      <button class="btn-modal ghost" onclick="closeModal()" style="margin-left:auto;">Cancelar</button>
     </div>
   </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, update, query, orderByChild } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// ── USERS ──
 const USERS = {
-  "inavarro@adifincas.es":   { pass: "inavarro",  name: "I. Navarro" },
-  "atencion1@adifincas.es":  { pass: "atencion1", name: "Atención 1" },
-  "jmgallego@adifincas.es":  { pass: "jmgallego", name: "JM Gallego" }
+  "inavarro@adifincas.es":  { pass: "inavarro",  name: "I. Navarro" },
+  "atencion1@adifincas.es": { pass: "atencion1", name: "Atención 1" },
+  "jmgallego@adifincas.es": { pass: "jmgallego", name: "JM Gallego" }
 };
 
-let CURRENT_USER = "";
-let allTickets = [];
-let db, dbRef;
-let selectedTipo = "";
-let currentModalId = "";
-let submitIntent = "";
-let ticketCounter = 0;
+let CURRENT_USER = "", allTickets = [], db, dbRef, selectedTipo = "", currentModalId = "", submitIntent = "", ticketCounter = 0;
 
-// ── LOGIN ──
 document.getElementById("loginForm").addEventListener("submit", e => {
   e.preventDefault();
   const em = document.getElementById("loginEmail").value.toLowerCase().trim();
@@ -698,20 +347,12 @@ document.getElementById("loginForm").addEventListener("submit", e => {
     document.getElementById("userChip").textContent = CURRENT_USER;
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
-    initFirebase();
-    startClock();
-    setNextTicketId();
-  } else {
-    document.getElementById("loginErr").style.display = "block";
-  }
+    initFirebase(); startClock(); setNextTicketId();
+  } else { document.getElementById("loginErr").style.display = "block"; }
 });
 
-window.logout = () => {
-  document.getElementById("loginScreen").style.display = "flex";
-  document.getElementById("app").style.display = "none";
-};
+window.logout = () => { document.getElementById("loginScreen").style.display = "flex"; document.getElementById("app").style.display = "none"; };
 
-// ── FIREBASE ──
 const firebaseConfig = {
   apiKey: "AIzaSyDQVGXvNsGQDL7d97M7mQQnrSonETe_5L0",
   authDomain: "adifincas-db-5d1ad.firebaseapp.com",
@@ -728,435 +369,264 @@ function initFirebase() {
   dbRef = ref(db, 'llamadas_v6');
   onValue(dbRef, snap => {
     const data = snap.val();
-    if (!data) { allTickets = []; }
-    else {
-      allTickets = Object.entries(data)
-        .map(([id, v]) => ({ dbId: id, ...v }))
-        .sort((a, b) => (b.ts || 0) - (a.ts || 0));
-    }
+    allTickets = data ? Object.entries(data).map(([id,v]) => ({dbId:id,...v})).sort((a,b) => (b.ts||0)-(a.ts||0)) : [];
     ticketCounter = allTickets.length;
-    renderRecent();
-    applyFilters();
-    renderStats();
-    checkMatches();
+    renderRecent(); applyFilters(); renderStats(); checkMatches();
   });
 }
 
-// ── CLOCK ──
 function startClock() {
-  const update = () => {
-    const now = new Date();
-    document.getElementById("clockDisplay").textContent =
-      now.toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}) + " · " +
-      now.toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  };
-  update(); setInterval(update, 1000);
+  const upd = () => { const n = new Date(); document.getElementById("clockDisplay").textContent = n.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}) + " · " + n.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); };
+  upd(); setInterval(upd, 1000);
 }
 
 function setNextTicketId() {
-  const now = new Date();
-  const yy = now.getFullYear().toString().slice(-2);
-  const mm = String(now.getMonth()+1).padStart(2,'0');
-  const seq = String(ticketCounter + 1).padStart(4,'0');
-  const tid = `#TK-${yy}${mm}-${seq}`;
+  const n = new Date(), yy = n.getFullYear().toString().slice(-2), mm = String(n.getMonth()+1).padStart(2,'0'), seq = String(ticketCounter+1).padStart(4,'0'), tid = `#TK-${yy}${mm}-${seq}`;
   document.getElementById("previewTid").textContent = tid;
-  document.getElementById("previewDt").textContent =
-    now.toLocaleDateString('es-ES') + " " + now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById("previewDt").textContent = n.toLocaleDateString('es-ES') + " " + n.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   return tid;
 }
 
-// ── TIPO ──
 window.selectTipo = function(tipo) {
   selectedTipo = tipo;
-  document.getElementById("btnSin").className = "tipo-btn" + (tipo === "sin" ? " selected-sin" : "");
-  document.getElementById("btnCon").className = "tipo-btn" + (tipo === "con" ? " selected-con" : "");
-  document.getElementById("statusGroup").style.display = tipo === "con" ? "block" : "none";
+  document.getElementById("btnSin").className = "tipo-btn" + (tipo==="sin" ? " selected-sin" : "");
+  document.getElementById("btnCon").className = "tipo-btn" + (tipo==="con" ? " selected-con" : "");
+  document.getElementById("statusGroup").style.display = tipo==="con" ? "block" : "none";
 };
 
-// ── SUBMIT ──
 document.getElementById("btnSubmitSin").addEventListener("click", () => { submitIntent = "sin"; });
 document.getElementById("btnSubmitCon").addEventListener("click", () => { submitIntent = "con"; });
 
 document.getElementById("callForm").addEventListener("submit", async e => {
   e.preventDefault();
   const tipo = submitIntent || selectedTipo || "sin";
-  const now = new Date();
-  const yy = now.getFullYear().toString().slice(-2);
-  const mm = String(now.getMonth()+1).padStart(2,'0');
-  const seq = String(allTickets.length + 1).padStart(4,'0');
-  const tid = `#TK-${yy}${mm}-${seq}`;
-
+  const now = new Date(), yy = now.getFullYear().toString().slice(-2), mm = String(now.getMonth()+1).padStart(2,'0'), seq = String(allTickets.length+1).padStart(4,'0'), tid = `#TK-${yy}${mm}-${seq}`;
   const rec = {
-    ticketId: tid,
-    ts: now.getTime(),
-    date: now.toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}),
-    time: now.toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'}),
+    ticketId: tid, ts: now.getTime(),
+    date: now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    time: now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),
     agent: CURRENT_USER,
     phone: document.getElementById("fPhone").value.trim(),
     name: document.getElementById("fName").value.trim(),
     community: document.getElementById("fCommunity").value.trim(),
     provider: document.getElementById("fProvider").value.trim(),
     reason: document.getElementById("fReason").value.trim(),
-    notes: buildFirstNote(document.getElementById("fNote").value.trim(), now),
-    tipo: tipo,
-    status: tipo === "sin" ? "Resuelto" : (document.getElementById("fStatus").value || "Pendiente"),
-    fincasPlus: "",
-    adjuntos: []
+    notes: `[${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})} · ${CURRENT_USER}]\n` + (document.getElementById("fNote").value.trim() || "Llamada registrada sin nota adicional."),
+    tipo, status: tipo==="sin" ? "Resuelto" : (document.getElementById("fStatus").value || "Pendiente"),
+    fincasPlus: "", adjuntos: []
   };
-
   const snap = await push(dbRef, rec);
   const newDbId = snap.key;
+  syncToSheets(rec, "create");
   document.getElementById("callForm").reset();
-  selectedTipo = "";
-  submitIntent = "";
+  selectedTipo = ""; submitIntent = "";
   document.getElementById("btnSin").className = "tipo-btn";
   document.getElementById("btnCon").className = "tipo-btn";
   document.getElementById("statusGroup").style.display = "none";
   document.getElementById("matchBox").style.display = "none";
   showToast(`Ticket ${tid} creado correctamente`);
   setNextTicketId();
-  // Si es incidencia/siniestro, abrir modal automáticamente
-  if (tipo === "con") {
-    setTimeout(() => {
-      const t2 = allTickets.find(x => x.dbId === newDbId) || { ...rec, dbId: newDbId };
-      openModal(newDbId);
-    }, 800);
-  }
+  if (tipo === "con") setTimeout(() => openModal(newDbId), 800);
 });
 
-function buildFirstNote(txt, now) {
-  const header = `[${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})} · ${CURRENT_USER}]`;
-  return header + "\n" + (txt || "Llamada registrada sin nota adicional.");
-}
-
-// ── MATCH ──
 const fPhone = document.getElementById("fPhone");
-const fName  = document.getElementById("fName");
+const fName = document.getElementById("fName");
 
 function checkMatches() {
-  const ph = fPhone.value.replace(/\s/g,'');
-  const nm = fName.value.toLowerCase();
+  const ph = fPhone.value.replace(/\s/g,''), nm = fName.value.toLowerCase();
   if (ph.length < 4 && nm.length < 3) { document.getElementById("matchBox").style.display = "none"; return; }
   const matches = allTickets.filter(t => {
-    if (t.tipo === "sin") return false;
-    const tph = (t.phone||"").replace(/\s/g,'');
-    const tnm = (t.name||"").toLowerCase();
+    const tph = (t.phone||"").replace(/\s/g,''), tnm = (t.name||"").toLowerCase();
     return (ph.length >= 4 && tph.includes(ph)) || (nm.length >= 3 && tnm.includes(nm));
-  }).filter(t => t.status !== "Resuelto").slice(0,3);
-
-  const box = document.getElementById("matchBox");
-  const list = document.getElementById("matchList");
+  }).slice(0,5);
+  const box = document.getElementById("matchBox"), list = document.getElementById("matchList");
   if (!matches.length) { box.style.display = "none"; return; }
-  box.style.display = "block";
+  box.style.display = "none"; void box.offsetWidth; box.style.display = "block";
   list.innerHTML = "";
   matches.forEach(m => {
-    const d = document.createElement("div");
-    d.className = "match-item";
-    d.innerHTML = `<div><span class="tid-badge">${m.ticketId}</span> <strong>${m.status}</strong> — ${m.reason||''}</div><button class="btn-act" onclick="openModal('${m.dbId}')">Ver</button>`;
+    const d = document.createElement("div"); d.className = "match-item";
+    const isOpen = m.status !== "Resuelto" && m.tipo !== "sin";
+    d.style.cssText = isOpen ? "border-left:3px solid #ea580c;" : "border-left:3px solid #059669;";
+    d.innerHTML = `<div><span class="tid-badge">${m.ticketId||'#'}</span> <span style="font-weight:700;color:${isOpen?'#c2410c':'#059669'};">${m.status}</span> <span style="color:#64748b;">${m.tipo==="sin"?"(llamada)":"(incid.)"}</span><div style="color:#374151;margin-top:2px;">${m.reason||'Sin asunto'}</div><div style="font-size:10px;color:#94a3b8;">${m.date} ${m.time} · ${m.agent||''}</div></div><button class="btn-act" onclick="openModal('${m.dbId}')">👁 Ver</button>`;
     list.appendChild(d);
   });
 }
 fPhone.addEventListener("input", checkMatches);
 fName.addEventListener("input", checkMatches);
 
-// ── RENDER RECENT ──
 function renderRecent() {
   document.getElementById("countBadge").textContent = allTickets.length;
   const el = document.getElementById("recentList");
   if (!allTickets.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-3);">Sin llamadas registradas</div>'; return; }
   el.innerHTML = allTickets.slice(0,30).map(t => `
     <div class="recent-item" onclick="openModal('${t.dbId}')">
-      <div>
-        <div class="ri-tid">${t.ticketId||'—'}</div>
-        <div class="ri-meta">${t.date} ${t.time}</div>
+      <div><div class="ri-tid">${t.ticketId||'—'}</div><div class="ri-meta">${t.date} ${t.time}</div></div>
+      <div class="ri-body"><div class="ri-name">${t.name||'—'}</div><div class="ri-sub">${t.reason||'Sin asunto'}</div><div class="ri-meta">${t.community||''} ${t.provider?'· '+t.provider:''}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;white-space:nowrap;">
+        <span class="tag ${tagClass(t)}">${tagLabel(t)}</span>
+        <span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}" style="font-size:10px;">${t.tipo==='sin'?'📞 Llamada':'🚨 Incid.'}</span>
       </div>
-      <div class="ri-body">
-        <div class="ri-name">${t.name||'—'}</div>
-        <div class="ri-sub">${t.reason||'Sin asunto'}</div>
-        <div class="ri-meta">${t.community||''} ${t.provider ? '· '+t.provider : ''}</div>
-      </div>
-      <span class="tag ${tagClass(t)}">${tagLabel(t)}</span>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ── FILTERS & TABLE ──
-window.applyFilters = function() {
-  const term = document.getElementById("fSearch").value.toLowerCase();
-  const st   = document.getElementById("fFiltStatus").value;
-  const tp   = document.getElementById("fFiltTipo").value;
-  const mo   = document.getElementById("fFiltMonth").value;
-  const com  = document.getElementById("fFiltCom").value.toLowerCase();
+window.clearFilters = function() {
+  ["fSearch","fFiltCom","fFiltProv","fFiltAgent"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  ["fFiltStatus","fFiltTipo"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  document.getElementById("fFiltMonth").value = "";
+  applyFilters();
+};
 
+window.applyFilters = function() {
+  const term=document.getElementById("fSearch").value.toLowerCase(), st=document.getElementById("fFiltStatus").value, tp=document.getElementById("fFiltTipo").value, mo=document.getElementById("fFiltMonth").value, com=document.getElementById("fFiltCom").value.toLowerCase();
+  const prov=document.getElementById("fFiltProv")?document.getElementById("fFiltProv").value.toLowerCase():"";
+  const agent=document.getElementById("fFiltAgent")?document.getElementById("fFiltAgent").value.toLowerCase():"";
   const filtered = allTickets.filter(t => {
     if (term && !JSON.stringify(t).toLowerCase().includes(term)) return false;
     if (st && t.status !== st) return false;
     if (tp && t.tipo !== tp) return false;
     if (com && !(t.community||"").toLowerCase().includes(com)) return false;
-    if (mo) {
-      const [y,m] = mo.split("-");
-      const td = new Date(t.ts||0);
-      if (td.getFullYear() !== parseInt(y) || td.getMonth()+1 !== parseInt(m)) return false;
-    }
+    if (prov && !(t.provider||"").toLowerCase().includes(prov)) return false;
+    if (agent && !(t.agent||"").toLowerCase().includes(agent)) return false;
+    if (mo) { const [y,m]=mo.split("-"), td=new Date(t.ts||0); if(td.getFullYear()!==parseInt(y)||td.getMonth()+1!==parseInt(m)) return false; }
     return true;
   });
-
   const tbody = document.getElementById("tableBody");
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3);">Sin resultados</td></tr>';
-    return;
-  }
-  tbody.innerHTML = filtered.map(t => `
-    <tr>
-      <td><span class="tid-badge">${t.ticketId||'—'}</span></td>
-      <td style="color:var(--text-2);white-space:nowrap;">${t.date}<br><span style="font-size:11px;">${t.time}</span></td>
-      <td><strong>${t.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-3);">${t.phone||''}</span></td>
-      <td style="font-size:12px;">${t.community||'—'}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.reason||'—'}</td>
-      <td><span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incid.':'Incid./Sin.'}</span></td>
-      <td><span class="tag ${tagClass(t)}">${tagLabel(t)}</span></td>
-      <td style="font-size:12px;">${t.agent||'—'}</td>
-      <td><button class="btn-act" onclick="openModal('${t.dbId}')">👁 Ver</button></td>
-    </tr>
-  `).join('');
+  if (!filtered.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-3);">Sin resultados</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(t => `<tr>
+    <td><span class="tid-badge">${t.ticketId||'—'}</span></td>
+    <td style="color:var(--text-2);white-space:nowrap;">${t.date}<br><span style="font-size:11px;">${t.time}</span></td>
+    <td><strong>${t.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-3);">${t.phone||''}</span></td>
+    <td style="font-size:12px;">${t.community||'—'}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.reason||'—'}</td>
+    <td><span class="tag ${tagClass(t)}">${tagLabel(t)}</span> <span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}" style="margin-left:4px;">${t.tipo==='sin'?'📞 Llamada':'🚨 Incid.'}</span></td>
+    <td style="font-size:12px;">${t.agent||'—'}</td>
+    <td><button class="btn-act" onclick="openModal('${t.dbId}')">👁 Ver</button></td>
+  </tr>`).join('');
 };
-
 document.getElementById("fSearch").addEventListener("keyup", applyFilters);
 
-// ── STATS ──
 function renderStats() {
-  const total = allTickets.length;
-  const pend  = allTickets.filter(t=>t.status==="Pendiente").length;
-  const encu  = allTickets.filter(t=>t.status==="En Curso").length;
-  const res   = allTickets.filter(t=>t.status==="Resuelto").length;
-  const con   = allTickets.filter(t=>t.tipo==="con").length;
-  const sin   = allTickets.filter(t=>t.tipo==="sin").length;
-  document.getElementById("sTotalTickets").textContent = total;
-  document.getElementById("sPendientes").textContent   = pend;
-  document.getElementById("sEnCurso").textContent      = encu;
-  document.getElementById("sResueltos").textContent    = res;
-  document.getElementById("sConIncidencia").textContent= con;
-  document.getElementById("sSinIncidencia").textContent= sin;
-
-  // By community
-  const comMap = {};
-  allTickets.forEach(t => {
-    const c = t.community || "(Sin comunidad)";
-    if (!comMap[c]) comMap[c] = {total:0,pend:0,res:0};
-    comMap[c].total++;
-    if (t.status==="Pendiente"||t.status==="En Curso") comMap[c].pend++;
-    if (t.status==="Resuelto") comMap[c].res++;
-  });
-  document.getElementById("communityStats").innerHTML = Object.entries(comMap)
-    .sort((a,b)=>b[1].total-a[1].total)
-    .map(([c,v]) => `<tr><td>${c}</td><td><strong>${v.total}</strong></td><td>${v.pend}</td><td>${v.res}</td></tr>`)
-    .join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-3);">Sin datos</td></tr>';
+  const total=allTickets.length, pend=allTickets.filter(t=>t.status==="Pendiente").length, encu=allTickets.filter(t=>t.status==="En Curso").length, res=allTickets.filter(t=>t.status==="Resuelto").length, con=allTickets.filter(t=>t.tipo==="con").length, sin=allTickets.filter(t=>t.tipo==="sin").length;
+  document.getElementById("sTotalTickets").textContent=total; document.getElementById("sPendientes").textContent=pend; document.getElementById("sEnCurso").textContent=encu; document.getElementById("sResueltos").textContent=res; document.getElementById("sConIncidencia").textContent=con; document.getElementById("sSinIncidencia").textContent=sin;
+  const comMap={};
+  allTickets.forEach(t => { const c=t.community||"(Sin comunidad)"; if(!comMap[c]) comMap[c]={total:0,pend:0,res:0}; comMap[c].total++; if(t.status==="Pendiente"||t.status==="En Curso") comMap[c].pend++; if(t.status==="Resuelto") comMap[c].res++; });
+  document.getElementById("communityStats").innerHTML = Object.entries(comMap).sort((a,b)=>b[1].total-a[1].total).map(([c,v])=>`<tr><td>${c}</td><td><strong>${v.total}</strong></td><td>${v.pend}</td><td>${v.res}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-3);">Sin datos</td></tr>';
 }
 
-// ── TABS ──
 window.switchTab = function(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    const names = ['nueva','tickets','informes'];
-    t.className = 'tab' + (names[i] === name ? ' active' : '');
-  });
-  document.querySelectorAll('.page').forEach(p => p.className = 'page');
-  const pg = document.getElementById('tab-'+name);
-  if(pg) { pg.className = 'page active'; }
+  document.querySelectorAll('.tab').forEach((t,i) => { t.className='tab'+(['nueva','tickets','informes'][i]===name?' active':''); });
+  document.querySelectorAll('.page').forEach(p => p.className='page');
+  const pg=document.getElementById('tab-'+name); if(pg) pg.className='page active';
   if(name==='tickets') applyFilters();
   if(name==='informes') renderStats();
 };
 
-// ── MODAL ──
 window.openModal = function(dbId) {
-  const t = allTickets.find(x => x.dbId === dbId);
-  if (!t) return;
+  const t = allTickets.find(x => x.dbId===dbId); if(!t) return;
   currentModalId = dbId;
-
-  document.getElementById("mTid").textContent      = t.ticketId || '—';
-  document.getElementById("mStatus").innerHTML     = `<span class="tag ${tagClass(t)}">${tagLabel(t)}</span>`;
-  document.getElementById("mTipo").innerHTML       = `<span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro'}</span>`;
-  document.getElementById("mName").textContent     = t.name || '—';
-  document.getElementById("mPhone").textContent    = t.phone || '—';
-  document.getElementById("mCommunity").textContent= t.community || '—';
-  document.getElementById("mProvider").textContent = t.provider || '—';
+  document.getElementById("mTid").textContent = t.ticketId||'—';
+  document.getElementById("mStatus").innerHTML = `<span class="tag ${tagClass(t)}">${tagLabel(t)}</span>`;
+  document.getElementById("mTipo").innerHTML = `<span class="tag ${t.tipo==='sin'?'tag-sin':'tag-con'}">${t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro'}</span>`;
+  document.getElementById("mName").textContent = t.name||'—';
+  document.getElementById("mPhone").textContent = t.phone||'—';
+  document.getElementById("mCommunity").textContent = t.community||'—';
+  document.getElementById("mProvider").textContent = t.provider||'—';
   document.getElementById("mDateTime").textContent = (t.date||'') + ' ' + (t.time||'');
-  document.getElementById("mAgent").textContent    = t.agent || '—';
-  document.getElementById("mReason").textContent   = t.reason || '—';
-  const fpd = document.getElementById("mFincasPlusDisplay");
-  const fpv = document.getElementById("mFincasPlusVal");
-  if (t.fincasPlus) { fpd.style.display="block"; fpv.textContent = t.fincasPlus; }
-  else { fpd.style.display="none"; }
-  document.getElementById("mEditStatus").value     = t.status || 'Pendiente';
-  document.getElementById("mFincasPlus").value     = t.fincasPlus || "";
-  document.getElementById("mNewNote").value        = "";
+  document.getElementById("mAgent").textContent = t.agent||'—';
+  document.getElementById("mReason").textContent = t.reason||'—';
+  const fpd=document.getElementById("mFincasPlusDisplay"), fpv=document.getElementById("mFincasPlusVal");
+  if(t.fincasPlus){fpd.style.display="block";fpv.textContent=t.fincasPlus;}else{fpd.style.display="none";}
+  document.getElementById("mEditStatus").value = t.status||'Pendiente';
+  document.getElementById("mFincasPlus").value = t.fincasPlus||"";
+  document.getElementById("mNewNote").value = "";
   document.getElementById("adjuntosList").innerHTML = "";
   document.getElementById("mAdjuntos").value = "";
-  // Mostrar adjuntos guardados
-  if (t.adjuntos && t.adjuntos.length) {
-    const al = document.getElementById("adjuntosList");
-    t.adjuntos.forEach(a => {
-      const chip = document.createElement("a");
-      chip.href = a.data; chip.download = a.name; chip.target = "_blank";
-      chip.style.cssText = "display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:20px;font-size:12px;color:#1a4fa0;text-decoration:none;";
-      chip.innerHTML = "📎 " + a.name;
-      al.appendChild(chip);
-    });
-  }
-  // Mostrar campo Fincas Plus solo si es incidencia/siniestro
-  document.getElementById("fincasPlusGroup").style.display = t.tipo === "con" ? "block" : "none";
+  if(t.adjuntos&&t.adjuntos.length){const al=document.getElementById("adjuntosList");t.adjuntos.forEach(a=>{const chip=document.createElement("a");chip.href=a.data;chip.download=a.name;chip.target="_blank";chip.style.cssText="display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:20px;font-size:12px;color:#1a4fa0;text-decoration:none;";chip.innerHTML="📎 "+a.name;al.appendChild(chip);});}
+  document.getElementById("fincasPlusGroup").style.display = t.tipo==="con"?"block":"none";
   document.getElementById("adjuntosGroup").style.display = "block";
-
-  // Render history
-  renderHistory(t.notes || "");
-
+  const btnConv=document.getElementById("btnConvertir"); if(btnConv) btnConv.style.display=t.tipo==="sin"?"inline-flex":"none";
+  renderHistory(t.notes||"");
   document.getElementById("detailModal").className = "modal-overlay open";
 };
 
 function renderHistory(notesStr) {
-  const box = document.getElementById("mHistory");
-  box.innerHTML = "";
-  if (!notesStr) { box.textContent = "Sin notas registradas."; return; }
-
-  // Split entries by line starting with "["
-  const entries = notesStr.split(/(?=\[[\d\/]+\s[\d:]+\s·)/);
+  const box=document.getElementById("mHistory"); box.innerHTML="";
+  if(!notesStr){box.textContent="Sin notas registradas.";return;}
+  const entries=notesStr.split(/(?=\[[\d\/]+\s[\d:]+\s·)/);
   entries.reverse().forEach(entry => {
-    if (!entry.trim()) return;
-    const match = entry.match(/^\[([^\]]+)\]\n?([\s\S]*)/);
-    const div = document.createElement("div");
-    div.className = "note-entry";
-    if (match) {
-      div.innerHTML = `<div class="note-meta">${match[1]}</div><div class="note-body">${(match[2]||'').trim()}</div>`;
-    } else {
-      div.innerHTML = `<div class="note-body">${entry.trim()}</div>`;
-    }
+    if(!entry.trim()) return;
+    const match=entry.match(/^\[([^\]]+)\]\n?([\s\S]*)/), div=document.createElement("div"); div.className="note-entry";
+    if(match){div.innerHTML=`<div class="note-meta">${match[1]}</div><div class="note-body">${(match[2]||'').trim()}</div>`;}
+    else{div.innerHTML=`<div class="note-body">${entry.trim()}</div>`;}
     box.appendChild(div);
   });
 }
 
-window.closeModal = function() {
-  document.getElementById("detailModal").className = "modal-overlay";
-  currentModalId = "";
-};
+window.closeModal = function() { document.getElementById("detailModal").className="modal-overlay"; currentModalId=""; };
 
-window.saveNote = async function() {
-  const note = document.getElementById("mNewNote").value.trim();
-  const status = document.getElementById("mEditStatus").value;
-  const t = allTickets.find(x => x.dbId === currentModalId);
-  if (!t) return;
-
-  const now = new Date();
-  const header = `[${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})} · ${CURRENT_USER}]`;
-  const append = note ? "\n\n" + header + "\n" + note : "";
-  const updatedNotes = (t.notes || "") + append;
-
-  const fincasPlus = document.getElementById("mFincasPlus").value.trim();
-  
-  // Handle file attachments
-  const files = document.getElementById("mAdjuntos").files;
-  const t2 = allTickets.find(x => x.dbId === currentModalId);
-  let adjuntos = (t2 && t2.adjuntos) ? t2.adjuntos : [];
-  
-  if (files.length > 0) {
-    const readFile = (file) => new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve({ name: file.name, data: e.target.result, type: file.type });
-      reader.readAsDataURL(file);
-    });
-    const newFiles = await Promise.all(Array.from(files).map(readFile));
-    adjuntos = [...adjuntos, ...newFiles];
-  }
-
-  await update(ref(db, 'llamadas_v6/' + currentModalId), {
-    status,
-    notes: updatedNotes,
-    fincasPlus,
-    adjuntos
-  });
-
-  showToast("Nota guardada y estado actualizado");
+window.saveNote = async function(closeAction) {
+  const note=document.getElementById("mNewNote").value.trim(), t=allTickets.find(x=>x.dbId===currentModalId); if(!t) return;
+  let status;
+  if(closeAction==="cerrado") status="Resuelto";
+  else if(closeAction==="abierto") status=t.status==="Resuelto"?"En Curso":(t.status||"En Curso");
+  else status=document.getElementById("mEditStatus").value;
+  const now=new Date(), header=`[${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})} · ${CURRENT_USER}]`;
+  const suffix=closeAction==="cerrado"?" · CERRADO":closeAction==="abierto"?" · ABIERTO":"";
+  const noteText=note||(closeAction==="cerrado"?"Ticket cerrado.":"Ticket actualizado.");
+  const updatedNotes=(t.notes||"")+"\n\n"+header+suffix+"\n"+noteText;
+  const fincasPlus=document.getElementById("mFincasPlus").value.trim();
+  const files=document.getElementById("mAdjuntos").files;
+  let adjuntos=(t.adjuntos)?t.adjuntos:[];
+  if(files.length>0){const readFile=f=>new Promise(res=>{const r=new FileReader();r.onload=e=>res({name:f.name,data:e.target.result,type:f.type});r.readAsDataURL(f);});const newFiles=await Promise.all(Array.from(files).map(readFile));adjuntos=[...adjuntos,...newFiles];}
+  await update(ref(db,'llamadas_v6/'+currentModalId),{status,notes:updatedNotes,fincasPlus,adjuntos});
+  const upd=allTickets.find(x=>x.dbId===currentModalId); if(upd) syncToSheets({...upd,status,notes:updatedNotes,fincasPlus},"update");
+  showToast(closeAction==="cerrado"?"Ticket cerrado correctamente":"Nota guardada · Ticket abierto");
   closeModal();
 };
 
-// ── PRINT ──
 window.printTicket = function() {
-  const t = allTickets.find(x => x.dbId === currentModalId);
-  if (!t) return;
-  const area = document.getElementById("printArea");
-  area.style.display = "block";
-  area.innerHTML = `
-    <h1 style="color:#1a4fa0;">ADIFINCAS — Ticket ${t.ticketId||''}</h1>
-    <hr>
-    <p><strong>Fecha:</strong> ${t.date} ${t.time} | <strong>Agente:</strong> ${t.agent||'—'}</p>
-    <p><strong>Llamante:</strong> ${t.name||'—'} | <strong>Teléfono:</strong> ${t.phone||'—'}</p>
-    <p><strong>Comunidad:</strong> ${t.community||'—'} | <strong>Proveedor:</strong> ${t.provider||'—'}</p>
-    <p><strong>Asunto:</strong> ${t.reason||'—'}</p>
-    <p><strong>Estado:</strong> ${t.status||'—'} | <strong>Tipo:</strong> ${t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro'}</p>
-    <hr>
-    <h3>Historial de Notas:</h3>
-    <pre style="white-space:pre-wrap;font-size:12px;">${t.notes||'Sin notas.'}</pre>
-  `;
+  const t=allTickets.find(x=>x.dbId===currentModalId); if(!t) return;
+  const area=document.getElementById("printArea"); area.style.display="block";
+  area.innerHTML=`<h1 style="color:#1a4fa0;">ADIFINCAS — Ticket ${t.ticketId||''}</h1><hr><p><strong>Fecha:</strong> ${t.date} ${t.time} | <strong>Agente:</strong> ${t.agent||'—'}</p><p><strong>Llamante:</strong> ${t.name||'—'} | <strong>Teléfono:</strong> ${t.phone||'—'}</p><p><strong>Comunidad:</strong> ${t.community||'—'} | <strong>Proveedor:</strong> ${t.provider||'—'}</p><p><strong>Asunto:</strong> ${t.reason||'—'}</p><p><strong>Estado:</strong> ${t.status||'—'} | <strong>Tipo:</strong> ${t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro'}</p>${t.fincasPlus?`<p><strong>Nº Fincas Plus:</strong> ${t.fincasPlus}</p>`:''}<hr><h3>Historial:</h3><pre style="white-space:pre-wrap;font-size:12px;">${t.notes||'Sin notas.'}</pre>`;
   window.print();
-  setTimeout(() => { area.style.display = "none"; area.innerHTML = ""; }, 1000);
+  setTimeout(()=>{area.style.display="none";area.innerHTML="";},1000);
 };
 
-// ── EMAIL ──
 window.sendEmail = function() {
-  const t = allTickets.find(x => x.dbId === currentModalId);
-  if (!t) return;
-  const subject = encodeURIComponent(`Ticket ${t.ticketId||''} — ${t.reason||'Sin asunto'} — ADIFINCAS`);
-  const body = encodeURIComponent(
-    `Estimado/a ${t.name||''},\n\nLe informamos sobre el estado de su incidencia:\n\nTicket: ${t.ticketId||''}\nFecha: ${t.date} ${t.time}\nComunidad: ${t.community||'—'}\nAsunto: ${t.reason||'—'}\nEstado: ${t.status||'—'}\n\n---\nAdifincas — Administración de Fincas`
-  );
+  const t=allTickets.find(x=>x.dbId===currentModalId); if(!t) return;
+  const subject=encodeURIComponent(`Ticket ${t.ticketId||''} — ${t.reason||'Sin asunto'} — ADIFINCAS`);
+  const body=encodeURIComponent(`Estimado/a ${t.name||''},\n\nTicket: ${t.ticketId||''}\nFecha: ${t.date} ${t.time}\nComunidad: ${t.community||'—'}\nAsunto: ${t.reason||'—'}\nEstado: ${t.status||'—'}\n\n---\nAdifincas`);
   window.open(`mailto:?subject=${subject}&body=${body}`);
 };
 
-// ── FINCAS PLUS ──
-window.openFincasPlus = function() {
-  window.open("https://www.fincasplus.es", "_blank");
+window.openFincasPlus = function() { window.open("https://www.fincasplus.es","_blank"); };
+
+window.convertirAIncidencia = async function() {
+  const t=allTickets.find(x=>x.dbId===currentModalId); if(!t) return;
+  if(t.tipo==="con"){showToast("Ya es una incidencia/siniestro",true);return;}
+  if(!confirm("¿Convertir esta llamada en Incidencia/Siniestro?")) return;
+  await update(ref(db,"llamadas_v6/"+currentModalId),{tipo:"con",status:"Pendiente"});
+  showToast("Convertido a Incidencia/Siniestro"); closeModal();
 };
 
-// ── EXPORT CSV ──
+const SHEETS_WEBHOOK = "";
+async function syncToSheets(ticket, action="create") {
+  if(!SHEETS_WEBHOOK) return;
+  try { await fetch(SHEETS_WEBHOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,ticketId:ticket.ticketId||"",date:ticket.date||"",time:ticket.time||"",agent:ticket.agent||"",name:ticket.name||"",phone:ticket.phone||"",community:ticket.community||"",provider:ticket.provider||"",reason:ticket.reason||"",tipo:ticket.tipo==="sin"?"Sin Incidencia":"Incidencia/Siniestro",status:ticket.status||"",fincasPlus:ticket.fincasPlus||"",notes:(ticket.notes||"").replace(/\n/g," | ")})}); } catch(e) { console.log("Sheets error:",e); }
+}
+
 window.exportCSV = function() {
-  const h = ["ID","Fecha","Hora","Agente","Llamante","Teléfono","Comunidad","Proveedor","Asunto","Tipo","Estado","Notas"];
-  const rows = allTickets.map(t => [
-    t.ticketId||'', t.date||'', t.time||'', t.agent||'',
-    t.name||'', t.phone||'', t.community||'', t.provider||'',
-    t.reason||'', t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro',
-    t.status||'', (t.notes||'').replace(/"/g,'""')
-  ].map(v => `"${v}"`).join(","));
-  const csv = [h.join(","), ...rows].join("\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8"}));
-  a.download = `Adifincas_Llamadas_${new Date().toLocaleDateString('es-ES').replace(/\//g,'-')}.csv`;
-  a.click();
+  const h=["ID","Fecha","Hora","Agente","Llamante","Teléfono","Comunidad","Proveedor","Asunto","Tipo","Estado","Nº Fincas Plus","Notas"];
+  const rows=allTickets.map(t=>[t.ticketId||'',t.date||'',t.time||'',t.agent||'',t.name||'',t.phone||'',t.community||'',t.provider||'',t.reason||'',t.tipo==='sin'?'Sin incidencia':'Incidencia/Siniestro',t.status||'',t.fincasPlus||'',(t.notes||'').replace(/"/g,'""')].map(v=>`"${v}"`).join(","));
+  const csv=[h.join(","),...rows].join("\n"), a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download=`Adifincas_${new Date().toLocaleDateString('es-ES').replace(/\//g,'-')}.csv`; a.click();
 };
 
-// ── HELPERS ──
-function tagClass(t) {
-  if (t.tipo==='sin') return 'tag-resuelto';
-  const s = t.status||'';
-  if (s==='Pendiente') return 'tag-pendiente';
-  if (s==='En Curso')  return 'tag-en-curso';
-  return 'tag-resuelto';
-}
-function tagLabel(t) {
-  if (t.tipo==='sin') return 'Archivado';
-  return t.status||'—';
-}
-
-function showToast(msg, err=false) {
-  const c = document.getElementById("toasts");
-  const d = document.createElement("div");
-  d.className = "toast" + (err ? " error" : "");
-  d.innerHTML = (err ? "⚠️" : "✅") + " " + msg;
-  c.appendChild(d);
-  setTimeout(() => d.remove(), 3500);
-}
-
-// Click outside modal closes it
-document.getElementById("detailModal").addEventListener("click", e => {
-  if (e.target === document.getElementById("detailModal")) closeModal();
-});
+function tagClass(t) { if(t.tipo==='sin') return 'tag-resuelto'; const s=t.status||''; if(s==='Pendiente') return 'tag-pendiente'; if(s==='En Curso') return 'tag-en-curso'; return 'tag-resuelto'; }
+function tagLabel(t) { if(t.tipo==='sin') return 'Archivado'; return t.status||'—'; }
+function showToast(msg,err=false) { const c=document.getElementById("toasts"),d=document.createElement("div"); d.className="toast"+(err?" error":""); d.innerHTML=(err?"⚠️":"✅")+" "+msg; c.appendChild(d); setTimeout(()=>d.remove(),3500); }
+document.getElementById("detailModal").addEventListener("click",e=>{if(e.target===document.getElementById("detailModal"))closeModal();});
 </script>
 </body>
 </html>
